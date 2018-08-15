@@ -5,15 +5,15 @@
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following command:
 ```console
-$ pip install virtualenv
-```
-$ in bash, run the following command: 
-```console
-"venv\Scripts\activate.bat"
+user@ubuntu:~$ pip install virtualenv
 ```
 * in bash, run the following command: 
 ```console
-$ "pip install -r requirements.txt", enjoy
+user@ubuntu:~$ "venv\Scripts\activate.bat"
+```
+* in bash, run the following command: 
+```console
+user@ubuntu:~$ "pip install -r requirements.txt", enjoy
 ```
 
 ## Description
