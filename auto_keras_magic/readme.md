@@ -7,8 +7,14 @@ One way to install all the required dependencies, is to use virtual environment.
 ```python
  $ pip install virtualenv
 ```
-* in bash, run the following command: "venv\Scripts\activate.bat"
-* in bash, run the following command: "pip install -r requirements.txt", enjoy
+* in bash, run the following command: 
+```python
+"venv\Scripts\activate.bat"
+```
+* in bash, run the following command: 
+```python
+"pip install -r requirements.txt", enjoy
+```
 
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
