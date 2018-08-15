@@ -3,12 +3,14 @@
 ## Installation
 If installed from source, a dependency of AutoKeras is to install PyTorch==0.4.0, which means for those of you who are using PyTorch==0.4.1, the command 'pip install autokeras' may not work. You can get around this by changing the dependency in setup.py (line 6) from 'torch==0.4.0' to 'torch==0.4.1'. <br>
 Alternativately you can use the 'autokeras.tar.gz' file in this repository to install the package. Simply run 'pip install autokeras.tar.gz' to install autokeras.
+
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
 AutoKeras provides the functions to automatically search for architecture
-and parameters for deep learning models. [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html)
-was used for evaluation of the library. <br>
-Because data was sampled from 40 individuals and each class only had 10 samples, the size of the dataset was increased by 4x by artificially synthesizing data, this was achived by rotating each image 90, 180 and 270 degrees counter clockwise <br>
+and parameters for deep learning models. Different datasets were used for evaluation of library
+
+## Pre-processing strategy
+In the cause of Olivetti Faces dataset, because data was sampled from 40 individuals and each class only had 10 samples, the size of the dataset was increased by 4x by artificially synthesizing data, this was achived by rotating each image 90, 180 and 270 degrees counter clockwise <br>
 The train test split was kept at 80:20. <br>
 
 ## Results
