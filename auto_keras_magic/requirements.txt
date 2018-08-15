@@ -3,6 +3,7 @@ matplotlib
 numpy
 http://download.pytorch.org/whl/cu90/torch-0.4.1-cp36-cp36m-win_amd64.whl
 torchvision
+virtualenv==16.0.0
 pandas
 sklearn
 keras
