@@ -18,12 +18,12 @@ The train test split was kept at 80:20. <br>
 
 ## Results
 
-| Dataset | No. of Samples | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Average F1 Score (%) | Total Support | Epochs | Time Taken (s) | Batch Size |
-| :-: | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: | :-: |
-| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 1600 | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859 | 128 |
-| [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | 69.278 | 69.180 | 69 | 70 | 69 | 10000 | 72 | 1876.29 | 128 |
-| [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) (un-normalized features) | 60000 | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
-| [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | 98.492 | 98.350 | 98 | 98 | 98 | 10000 | 37 | 98.350 | 128 |
+| Dataset | No. of Samples | Data Augmentation | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Average F1 Score (%) | Total Support | Epochs | Time Taken (s) | Batch Size |
+| :-: | :-: | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: | :-: |
+| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | Yes | 1600 | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859 | 128 |
+| [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | No | 69.278 | 69.180 | 69 | 70 | 69 | 10000 | 72 | 1876.29 | 128 |
+| [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) (un-normalized features) | 60000 | No | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
+| [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | No | 98.492 | 98.350 | 98 | 98 | 98 | 10000 | 37 | 98.350 | 128 |
 
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
