@@ -1,0 +1,4 @@
+numpy
+h5py
+tensorflow==1.10.0
+matplotlib
