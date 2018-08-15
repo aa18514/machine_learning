@@ -13,8 +13,9 @@ user@ubuntu:~$ "venv\Scripts\activate.bat"
 ```
 * in bash, run the following command: 
 ```console
-user@ubuntu:~$ "pip install -r requirements.txt", enjoy
+user@ubuntu:~$ "pip install -r requirements.txt"
 ```
+* enjoy
 
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
