@@ -14,7 +14,6 @@ and parameters for deep learning models. Different datasets were used for evalua
 
 ## Pre-processing strategy
 In the cause of Olivetti Faces dataset, because data was sampled from 40 individuals and each class only had 10 samples, the size of the dataset was increased by 4x by artificially synthesizing data, this was achived by rotating each image 90, 180 and 270 degrees counter clockwise <br>
-The train test split was kept at 80:20. <br>
 
 ## Results
 
