@@ -4,16 +4,16 @@
 
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following command:
-```python
- $ pip install virtualenv
+```console
+$ pip install virtualenv
 ```
-* in bash, run the following command: 
-```python
+$ in bash, run the following command: 
+```console
 "venv\Scripts\activate.bat"
 ```
 * in bash, run the following command: 
-```python
-"pip install -r requirements.txt", enjoy
+```console
+$ "pip install -r requirements.txt", enjoy
 ```
 
 ## Description
