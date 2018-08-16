@@ -4,7 +4,8 @@
 
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
-&#9658
+&#9658;
+&#9668;
 ```console
 &#923 pip install virtualenv
 Î» virtualenv venv
