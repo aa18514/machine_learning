@@ -3,22 +3,21 @@
 ## Installation
 
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
-* run the following command:
+* run the following commands (enjoy):
 ```console
 user@ubuntu:~$ pip install virtualenv 
 user@ubuntu:~$ .\venv\Scripts\activate.bat
 user@ubuntu:~$ pip install -r requirements.txt
 ```
-* enjoy
 
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
 AutoKeras provides the functions to automatically search for architecture
-and parameters for deep learning models. <br> [Nvidia GeForce 940MX](https://www.geforce.com/hardware/notebook-gpus/geforce-940mx) GPU was used for training purposes. <br>
+and parameters for deep learning models. <br> [Nvidia GeForce 940MX GPU](https://www.geforce.com/hardware/notebook-gpus/geforce-940mx) was used for training purposes. <br>
 Different datasets were used for evaluation of library
 
 ## Pre-processing strategy
-In the cause of Olivetti Faces dataset, because data was sampled from 40 individuals and each class only had 10 samples, the size of the dataset was increased by 4x by artificially synthesizing data, this was achived by rotating each image 90, 180 and 270 degrees counter clockwise <br>
+In the case of Olivetti Faces dataset, because data was sampled from 40 individuals and each class only had 10 samples, the size of the dataset was increased by 4x by artificially synthesizing data, this was achived by rotating each image 90, 180 and 270 degrees counter clockwise <br>
 
 ## Results
 
