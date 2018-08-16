@@ -27,12 +27,12 @@ In the case of Olivetti Faces dataset, because data was sampled from 40 individu
 
 ## Results
 
-| Dataset | No. of Samples | Data Augmentation | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Average F1 Score (%) | Total Support | Epochs | Time Taken (s) | Batch Size |
-| :-: | :-: | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: | :-: |
-| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 1600 | Yes | 96.449 | 97.500 | 97 | 98 | 97 | 320 | 53 | 110.767 | 128 |
-| [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | No | 69.580 | 68.870 | 68 | 69 | 68 | 10000 | 66 | 1876.29 | 128 |
-| [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) | 60000 | No | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
-| [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | No | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
+| Dataset | No. of Samples | Data Augmentation | Normalized features | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Average F1 Score (%) | Total Support | Epochs | Time Taken (s) | Batch Size |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: | :-: |
+| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 1600 | Y | Y | 96.449 | 97.500 | 97 | 98 | 97 | 320 | 53 | 110.767 | 128 |
+| [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | N | Y | 69.580 | 68.870 | 68 | 69 | 68 | 10000 | 66 | 1876.29 | 128 |
+| [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) | 60000 | N | Y | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
+| [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | N | Y | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
 
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in the direcotry 'classification_reports\\classification_report_[dataset].csv' <br>
 
