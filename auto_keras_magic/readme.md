@@ -5,16 +5,17 @@
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
 ```console
-\lambda	 pip install virtualenv
-user@ubuntu:~$ virtualenv venv
-user@ubuntu:~$ .\venv\Scripts\activate.bat
-user@ubuntu:~$ pip install -r requirements.txt
+Î pip install virtualenv
+Î» virtualenv venv
+Î» .\venv\Scripts\activate.bat
+Î» pip install -r requirements.txt
 ```
 * Alternatively you can simply run the following command:
 ```console
-user@ubuntu:~$ run_exec.bat
+Î run_exec.bat
 ```
-to set up virtualenv, activate it and install all the required dependencies.
+to set up virtualenv, activate it and install all the required dependencies. <br>
+Windows 10 OS was used for the evaluation of the library with "Cmder" as the console emulator <br>
 
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
