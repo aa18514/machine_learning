@@ -10,6 +10,11 @@ user@ubuntu:~$ virtualenv venv
 user@ubuntu:~$ .\venv\Scripts\activate.bat
 user@ubuntu:~$ pip install -r requirements.txt
 ```
+* Alternatively you can simply run the following command:
+```console
+user@ubuntu:~$ run_exec.bat
+```
+to set up virtualenv, activate it and install all the required dependencies.
 
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
