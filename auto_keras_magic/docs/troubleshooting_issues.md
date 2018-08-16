@@ -43,4 +43,32 @@ accuracy, loss, graph = train_results.get()[0] <br>
 with: <br>
 accuracy, loss, graph = train_results <br>
 
-* Another issue is when if you don't call the time-limit the GPU may run out of memory, if you keep the time-limit parameter to a reasonably small value such as 10 seonds, the training process would only take place once and you wont exhaust your GPU memory
+* Another issue is when if you don't call the time-limit the GPU may run out of memory, if you keep the time-limit parameter to a reasonably small value such as 10 seonds, you will exhaust your GPU memory resources.
+Unfortunately, this is a bug, you could get around this by specifying the time_limit to a reasonably small value such as 10 seconds to ensure the run_searcher_once method runs only once.
+
+if you check the following:
+
+```terminal
+user@ubuntu:~$ vim C:\Users\user\AppData\Local\Programs\Python36\lib\site-packages\autokeras\classifier.py
+``` 
+you will find the following piece of code on line 223
+
+```terminal
+
+if time_limit is None:
+    time_limit = 24 * 60 * 60
+
+start_time = time.time()
+while time.time() - start_time <= time_limit:
+    run_searcher_once(train_data, test_data, self.path)
+    if len(self.load_searcher().history) >= Constant.MAX_MODEL_NUM:
+        break
+
+```
+
+you could see the flaw in this piece of code <br>
+if time_limit parameter is not specified it defaults to 24 * 60 minutes <br>
+the default value of Constant.MAX_MODEL_NUM is 1000 <br>
+so you keep on looping in the while loop until len(self.load_searcher().history) >= Constant.MAX_MODEL_NUM <br>
+also after the train process is complete self.load_searcher().history stores the new trained model which means its length only increases by one <br>
+you could get around this by maybe replacing Constant.MAX_MODEL_NUM to a sane value like 1 (or choose the time limit to be low like 10 seonds), I hope this helps....
