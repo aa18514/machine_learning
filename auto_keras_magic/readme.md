@@ -7,13 +7,13 @@ One way to install all the required dependencies, is to use virtual environment.
 &#9658
 ```console
 &#923 pip install virtualenv
-λ virtualenv venv
-λ .\venv\Scripts\activate.bat
-λ pip install -r requirements.txt
+Î» virtualenv venv
+Î» .\venv\Scripts\activate.bat
+Î» pip install -r requirements.txt
 ```
 * Alternatively you can simply run the following command:
 ```console
-� run_exec.bat
+Î run_exec.bat
 ```
 to set up virtualenv, activate it and install all the required dependencies. <br>
 Windows 10 OS was used for the evaluation of the library with "Cmder" as the console emulator <br>
