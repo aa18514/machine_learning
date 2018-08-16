@@ -7,12 +7,13 @@ One way to install all the required dependencies, is to use virtual environment.
 &#9658;
 &#9668;
 
-```console
+<code>
 &#9658; pip install virtualenv
 Î» virtualenv venv
 Î» .\venv\Scripts\activate.bat
 Î» pip install -r requirements.txt
-```
+</code>
+
 * Alternatively you can simply run the following command:
 ```console
 Î run_exec.bat
