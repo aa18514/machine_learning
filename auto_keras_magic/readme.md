@@ -5,7 +5,7 @@
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
 ```console
-user@ubuntu:~$ pip install virtualenv
+\lambda pip install virtualenv
 user@ubuntu:~$ virtualenv venv
 user@ubuntu:~$ .\venv\Scripts\activate.bat
 user@ubuntu:~$ pip install -r requirements.txt
