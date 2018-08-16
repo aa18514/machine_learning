@@ -43,3 +43,4 @@ accuracy, loss, graph = train_results.get()[0] <br>
 with: <br>
 accuracy, loss, graph = train_results <br>
 
+* Another issue is when if you don't call the time-limit the GPU may run out of memory, if you keep the time-limit parameter to a reasonably small value such as 10 seonds, the training process would only take place once and you wont exhaust your GPU memory
