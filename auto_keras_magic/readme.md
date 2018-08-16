@@ -28,8 +28,7 @@ In the case of Olivetti Faces dataset, because data was sampled from 40 individu
 | [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) (un-normalized features) | 60000 | No | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
 | [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | No | 98.492 | 98.350 | 98 | 98 | 98 | 10000 | 37 | 98.350 | 128 |
 
-The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
-the file 'classification_report.csv'. <br>
+The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in the direcotry 'classification_reports\\classification_report_[dataset].csv' <br>
 
 ## Limitations
 * It seems like AutoKeras does not support architectures such as ResNet.
