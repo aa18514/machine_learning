@@ -5,7 +5,7 @@
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
 ```console
-&#955; pip install virtualenv
+<p> &#955; <\p> pip install virtualenv
 λ virtualenv venv
 λ .\venv\Scripts\activate.bat
 λ pip install -r requirements.txt
