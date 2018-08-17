@@ -4,8 +4,6 @@
 
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
-&#9658;
-&#9668;
 
 <pre><code>&#923; pip install virtualenv <br />
 &#923; virtualenv venv<br />
@@ -14,8 +12,7 @@ One way to install all the required dependencies, is to use virtual environment.
 </code></pre>
 
 * Alternatively you can simply run the following command:
-```console
-Î run_exec.bat
+<pre><code>&#923; run_exec.bat </code></pre>
 ```
 to set up virtualenv, activate it and install all the required dependencies. <br>
 Windows 10 OS was used for the evaluation of the library with "Cmder" as the console emulator <br>
