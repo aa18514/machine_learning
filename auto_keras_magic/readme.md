@@ -5,14 +5,14 @@
 One way to install all the required dependencies, is to use virtual environment. The steps are as follows: <br>
 * run the following commands (enjoy):
 
-<pre><code>&#923; pip install virtualenv <br />
-&#923; virtualenv venv<br />
-&#923; .\venv\Scripts\activate.ba <br />
-&#923; pip install -r requirements.txt<br />
+<pre><code>&#955; pip install virtualenv <br />
+&#955; virtualenv venv<br />
+&#955; .\venv\Scripts\activate.ba <br />
+&#955; pip install -r requirements.txt<br />
 </code></pre>
 
 * Alternatively you can simply run the following command:
-<pre><code>&#923; run_exec.bat </code></pre>
+<pre><code>&#955; run_exec.bat </code></pre>
 
 to set up virtualenv, activate it and install all the required dependencies. <br>
 Windows 10 OS was used for the evaluation of the library with "Cmder" as the console emulator <br>
