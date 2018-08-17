@@ -7,11 +7,10 @@ One way to install all the required dependencies, is to use virtual environment.
 &#9658;
 &#9668;
 
-<pre><code>
-&#923; pip install virtualenv <br />
- &#923; virtualenv venv<br />
-  &#923; .\venv\Scripts\activate.ba <br />
-   &#923; pip install -r requirements.txt<br />
+<pre><code> &#923; pip install virtualenv <br />
+&#923; virtualenv venv<br />
+&#923; .\venv\Scripts\activate.ba <br />
+&#923; pip install -r requirements.txt<br />
 </code></pre>
 
 * Alternatively you can simply run the following command:
