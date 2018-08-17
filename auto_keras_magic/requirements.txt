@@ -1,5 +1,6 @@
 matplotlib
 numpy==1.14.5
+hdf5
 tensorflow
 http://download.pytorch.org/whl/cu90/torch-0.4.1-cp36-cp36m-win_amd64.whl
 torchvision
