@@ -7,7 +7,7 @@ One way to install all the required dependencies, is to use virtual environment.
 
 <pre><code>&#955; pip install virtualenv <br />
 &#955; virtualenv venv<br />
-&#955; .\venv\Scripts\activate.ba <br />
+&#955; \venv\Scripts\activate.bat <br />
 &#955; pip install -r requirements.txt<br />
 </code></pre>
 
@@ -34,14 +34,14 @@ In the case of Olivetti Faces dataset, because data was sampled from 40 individu
 | [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | N | Y | 69.580 | 68.870 | 68 | 69 | 68 | 10000 | 66 | 1876.29 | 128 |
 | [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) | 60000 | N | Y | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
 | [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | N | Y | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
-
+| [Sign Language Classification](https://github.com/aa18514/machine_learning/tree/master/sign%20language%20classification) | 1080 | N | Y | 98.000 | 95.000 |  95 | 95 | 95 | 120 | 69 | 132.53 | 128 |
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in the direcotry 'classification_reports\\classification_report_[dataset].csv' <br>
 
 ## Limitations
-* It seems like AutoKeras does not support architectures such as ResNet.
+* It seems like AutoKeras does not support architectures such as ResNet. At the minute only it seems like only [Convolutional Neural Networks](https://en.wikipedia.org/wiki/Convolutional_neural_network) are supported and there is no support for [Recurrent Neural Networks](https://en.wikipedia.org/wiki/Recurrent_neural_network).
 * Cifar-100 suffers from very low test and train performance as compared to the baseline model
-* There is limited support in Keras for things like plotting the 'ROC Curve' with multiple classes
-* Things such as transfer learning become more difficult to achieve
+* There is limited support in Keras for things like plotting the [ROC Curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) for multiple classes
+* Things such as [transfer learning](https://en.wikipedia.org/wiki/Transfer_learning) become more difficult to achieve
 
 ## Issues
 [Common Troubleshooting Issues](docs/troubleshooting_issues.md)
