@@ -7,7 +7,7 @@ One way to install all the required dependencies, is to use virtual environment.
 
 <pre><code>&#955; pip install virtualenv <br />
 &#955; virtualenv venv<br />
-&#955; \venv\Scripts\activate.bat <br />
+&#955; venv\Scripts\activate.bat <br />
 &#955; pip install -r requirements.txt<br />
 </code></pre>
 
@@ -35,6 +35,7 @@ In the case of Olivetti Faces dataset, because data was sampled from 40 individu
 | [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) | 60000 | N | Y | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
 | [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | N | Y | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
 | [Sign Language Classification](https://github.com/aa18514/machine_learning/tree/master/sign%20language%20classification) | 1080 | N | Y | 98.000 | 95.000 |  95 | 95 | 95 | 120 | 69 | 132.53 | 128 |
+
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in the direcotry 'classification_reports\\classification_report_[dataset].csv' <br>
 
 ## Limitations
