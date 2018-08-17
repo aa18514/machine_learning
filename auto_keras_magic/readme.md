@@ -13,7 +13,7 @@ One way to install all the required dependencies, is to use virtual environment.
 
 * Alternatively you can simply run the following command:
 <pre><code>&#923; run_exec.bat </code></pre>
-```
+
 to set up virtualenv, activate it and install all the required dependencies. <br>
 Windows 10 OS was used for the evaluation of the library with "Cmder" as the console emulator <br>
 
