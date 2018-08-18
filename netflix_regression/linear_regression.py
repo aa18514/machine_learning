@@ -13,7 +13,7 @@ from sklearn.cross_validation import KFold
 from file_reader import compute_pca
 from datetime import timedelta
 from file_reader import file_reader
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 import multiprocessing
 
 
@@ -168,29 +168,35 @@ def compute_multiple_pca(i, TrainRatings, TestRatings, TrainMovieFeatures, TestM
 
 
 def standardize(data, mean, std, epsilon=10**-8):
+    """standardize to zero mean and unit variance"""
     return (data - mean)/(std + epsilon)
 
+
+def pca_transformation(train_data, test_data, n_features):
+    pca = PCA(n_components=n_features)
+    pca.fit(train_data)
+    b = np.ones((70002, n_features+1))
+    c = np.ones((30002, n_features+1))
+    b[:, 1:] = pca.transform(train_data)
+    c[:, 1:] = pca.transform(test_data)
+    return b, c
+    
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, n_features, args, epsilon=10**-8):
     """a total of 671 users, 700003 movies, the function handles linear_model regression
     for each user, linear regression with regularization, and non -linear transformation """
     tr = movie_features[train_ratings[:, 1] - 1]
     ts = movie_features[test_ratings[:, 1] - 1]
-    tr[:, 1:] = standardize(tr[:, 1;], np.mean(tr[:, 1], axis = 0), \
-                            np.std(tr[:, 1], axis = 0))
+    tr[:, 1:] = standardize(tr[:, 1::], np.mean(tr[:, 1], axis = 0), np.std(tr[:, 1], axis = 0))
     
     ts[:, 1:] = standardize(ts[:, 1:], np.mean(tr[:, 1], axis = 0), \
                             np.std(tr[:, 1], axis = 0))
     
-    pca = PCA(n_components=n_features)
-    pca.fit(tr)
-    b = np.ones((70002, n_features + 1))
-    c = np.ones((30002, n_features + 1))
-    b[:, 1:] = pca.transform(tr)
-    c[:, 1:] = pca.transform(movie_features[test_ratings[:, 1] - 1])
-    b[:, 0] = train_ratings[:, 1]
-    c[:, 0] = test_ratings[:, 1]
+    b, c = pca_tansformation(tr, ts, n_features)
+    #b[:, 0] = train_ratings[:, 1]
+    #c[:, 0] = test_ratings[:, 1]
 
     if args.verbose == 1 or args.verbose == 3:
+        print("success")
         K = [3, 4, 5, 6, 7, 8]
         regularized_constants = []
         train_errors = []
@@ -205,10 +211,10 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
         final_weights = np.array(final_weights)
         error = np.mean(train_errors, axis=1) + np.var(train_errors, axis=1)
         minimum = np.argmin(error)
-        return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, c)
+        return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, ts)
     else:
-        _, weight, train_error = compute_train_error(train_ratings, b, "lin_reg", None, None)
-        return train_error, compute_test_error(weight, test_ratings, c)
+        _, weight, train_error = compute_train_error(train_ratings, tr, "lin_reg", None, None)
+        return train_error, compute_test_error(weight, test_ratings, ts)
 
 
 def exponential_weightings(error, beta):
