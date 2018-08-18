@@ -29,7 +29,7 @@ In the case of non-transformed features the size of the feature vector is 19, an
 
 ### Controlling Overfitting
 
-L2 regularization is used to reduce [overfitting](https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br>. 
+L2 regularization is used to reduce [overfitting](https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy. <br> 
 A high value of &#955; you will risk [underfitting](https://en.wikipedia.org/wiki/Overfitting#Underfitting), whereas a low value of &#955; you will risk [overfitting](https://en.wikipedia.org/wiki/Overfitting). We choose the value of &#955; by using [cross validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)). <br>
 We learn the regularized values for each user seperately higher variance and lower bias as compared to taking as compared to a single regularized weight vector for all the users <br>
 Values of lambda were taken to be 10<sup>x</sup> where samples of x are taken between - 5 and 0, by calling the command: 
