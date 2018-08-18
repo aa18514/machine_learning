@@ -38,11 +38,16 @@ np.logspace(-5, 0, 100)
 ```
 
 The following graph shows the lambda values for all 671 users:
-
 <p align="center">
     <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/lambda_values.png">
 </p>
-
 The loss function in this case is taken to be the [L2 norm](http://mathworld.wolfram.com/L2-Norm.html) <br>
-
 Added support for the multiprocessing module to parallelize against different values of K respectively <br>
+
+### Accelerating Compute
+
+The joblib library was used to distribute work amongst multiple cores - in this case the process of finding an optimal weight vector for every user and getting the train and test bias and train and test variance for each user. This has been supported on 7 cores, but in the future the plan is to move the compute to **Amazon AWS** which can support upto 32 cores (in which case simply distributing work amongst multiple cores won't work and there needs to be some sort of agglomeration of events. I am also tempted to do the following:
+
+* move away from [NumPy] to [Tensorflow]
+* identify potential hotspots and move them to Amazon GPU/FPGA instances.
+* play around with different data types and investigate their affect on train and test accuracy.
