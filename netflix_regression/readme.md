@@ -41,7 +41,7 @@ np.logspace(-5, 0, 100)
 The following graph shows the lambda values for all 671 users:
 
 <p align="center">
-    <img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/lambda_values.png" />
+    <img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/lambda_values.png">
 </p>
 
 The loss function in this case is taken to be the [L2 norm](http://mathworld.wolfram.com/L2-Norm.html) <br>
