@@ -33,8 +33,9 @@ In the case of Olivetti Faces dataset, because data was sampled from 40 individu
 | [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 1600 | Y | Y | 96.449 | 97.500 | 97 | 98 | 97 | 320 | 53 | 110.767 | 128 |
 | [Cifar-10 Dataset](https://en.wikipedia.org/wiki/CIFAR-10) | 60000 | N | Y | 69.580 | 68.870 | 68 | 69 | 68 | 10000 | 66 | 1876.29 | 128 |
 | [Cifar-100 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html) | 60000 | N | Y | 40.1440 | 39.66 | 39 | 41 | 40 | 10000 | 54 | 1370.663991 | 128
-| [Mnist](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | N | Y | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
+| [MNIST](https://en.wikipedia.org/wiki/MNIST_database) | 60000 | N | Y | 98.248 | 98.180 | 98 | 98 | 98 | 10000 | 41 | 98.350 | 128 |
 | [Sign Language Classification](https://github.com/aa18514/machine_learning/tree/master/sign%20language%20classification) | 1080 | N | Y | 98.000 | 95.000 |  95 | 95 | 95 | 120 | 69 | 132.53 | 128 |
+| [Fashion MNIST](https://arxiv.org/abs/1708.07747) | 60000 | N | Y | 89.304 | 88.550 | 88 | 89 | 89 | 10000 | 57 | 1398 | 128
 
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in the direcotry 'classification_reports\\classification_report_[dataset].csv' <br>
 
