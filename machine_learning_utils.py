@@ -31,12 +31,12 @@ def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
          vs.append(vo)
      return vs
 
-def barlett_test(x: Vector_float, partition_factor: int=50)->(Vector_float, int):
+def barlett_test(x: Vector_float, partition_factor: int=10)->(Vector_float, int):
     population = []
     for i in range(0, len(x), partition_factor):
         sample = []
         for j in range(0, partition_factor):
-            sample.append(k * i + j)
+            sample.append(partition_factor * i + j)
         population.append(sample)
     print(*population)
     return stats.bartlett(*population)
