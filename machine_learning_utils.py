@@ -31,14 +31,13 @@ def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
          vs.append(vo)
      return vs
 
-def barlett_test(x: Vector_float, partition_factor: int=10)->(Vector_float, int):
+def barlett_test(x: Vector_float, partition_factor: int=2)->(Vector_float, int):
     population = []
     for i in range(0, len(x), partition_factor):
         sample = []
         for j in range(0, partition_factor):
             sample.append(partition_factor * i + j)
         population.append(sample)
-    print(*population)
     return stats.bartlett(*population)
 
 def plot_sample_variances(normalized_residuals: Vector_float, ax: Axes)->(Vector_float, Axes):
@@ -53,7 +52,6 @@ def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      centered_residual = (residuals - np.mean(residuals))**2
      weighted_residual = centered_residual/np.sum(centered_residual)
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
-     #homoscedasticity_test(normalized_residual, ax)
      return normalized_residual
 
 def histogram_residuals(residuals: Vector_float, ax: Axes):
