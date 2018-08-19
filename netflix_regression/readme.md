@@ -85,7 +85,7 @@ The following figures show the exponentially weighted training and test errors f
 <br>
 
 <p align="center">
-    <img src="https://github.com/118514/machine_learning/blob/master/netflix_regression/non-linear-features" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/non-linear-features" width="400" height="400" />
 </p>
 
 | | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
