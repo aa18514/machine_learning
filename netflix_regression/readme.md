@@ -59,7 +59,7 @@ The non-linear transformation is taken to be each genre multipled with the rest 
 The following figure shows the correlation coefficients between different genres in the dataset.
 
 <p align="center">
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/correlation_coefficients.png">
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/correlation_coefficients.png">
 </p>
 
 It is worth noting that the correlation coefficient between the genre 'Comedy' and 'Drama' is **-0.61976** which shows most of the movies that contain 'Comedy' do not contain 'Drama', and vice versa. <br> The original features remain unchanged and the transformed features are appended to the feature vector, yielding a new feature vector with dimension of **172**.
@@ -78,14 +78,14 @@ The following figures show the exponentially weighted training and test errors f
 </p>
 
 <div>
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/test_train_regularized_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_regularized_error.png" width="400" height="400" />
 </div>
 
 <br>
 
 <p align="center">
-    <img src="https://github.com/118514/machine_learning/machine_learning/blob/master/netflix_regression/non-linear-features" width="400" height="400" />
+    <img src="https://github.com/118514/machine_learning/blob/master/netflix_regression/non-linear-features" width="400" height="400" />
 </p>
 
 | | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
