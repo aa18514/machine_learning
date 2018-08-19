@@ -31,13 +31,28 @@ def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
          vs.append(vo)
      return vs
 
+def homoscedasticity_test(normalized_residuals: Vector_float)->Vector_float:
+    ax.set_xlabel('observation numbers')
+    ax.set_ylabel('standardized residual')
+    ax.set_title('homoscedasticity test')
+    ax.grid(True)
+    ax.set_facecolor((240./255, 248/255, 255./255))
+    ax.scatter(np.arange(0, len(residuals), 1), normalized_residuals, s=[5 for n in range(len(x))], c='r')
+
 def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      centered_residual = (residuals - np.mean(residuals))**2
      weighted_residual = centered_residual/np.sum(centered_residual)
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
+     homoscedasticity_test(normalized_residual)
      return normalized_residual
 
  def histogram_residuals(residuals: Vector_float, ax: Axes):
+     ax.set_xlabel('residual')
+     ax.set_ylabel('observation numbers')
+     ax.set_title('normality test')
+     ax.set_grid(True)
+     ax.set_facecolor((240./255, 248./255, 255./255))
+     ax.set_facecolor((240./255, 248./255, 255./255))
      weights = np.ones_like(residuals)/float(len(residuals))
      fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
      ax.hist(residuals, weights=weights, bins=75, color='r')
