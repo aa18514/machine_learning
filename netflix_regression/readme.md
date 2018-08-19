@@ -74,12 +74,12 @@ The following figures show the exponentially weighted training and test errors f
 </div>
 
 <p align="center">
-    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/total_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/total_error.png", width="400" height="400" />
 </p>
 
 <div>
-    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
-    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_regularized_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_error.png", width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/test_train_regularized_error.png", width="400" height="400" />
 </div>
 
 <br>
