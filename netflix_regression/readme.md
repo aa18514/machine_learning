@@ -65,11 +65,13 @@ The following figure shows the correlation coefficients between different genres
 It is worth noting that the correlation coefficient between the genre 'Comedy' and 'Drama' is **-0.61976** which shows most of the movies that contain 'Comedy' do not contain 'Drama', and vice versa. <br> The original features remain unchanged and the transformed features are appended to the feature vector, yielding a new feature vector with dimension of **172**.
 
 ## Error modelling
+Some important assumptions need to be verified without which the model can be misleading. Two of these are [Homoscedasticity](https://en.wikipedia.org/wiki/Homoscedasticity) and [Normality Test](https://en.wikipedia.org/wiki/Normality_test), ideally there should be no be correlations between the residuals and x (independent variable) and the residuals showed be normally distributed.
 
 <div>
     <img = src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/error_modelling.png">
 </div>
 
+From the diagram above, we can clearly see that both of the conditions are satisfied <br>
 
 ## Results
 
