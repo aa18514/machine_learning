@@ -41,7 +41,8 @@ The following graph shows the lambda values for all 671 users:
 <p align="center">
     <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/lambda_values.png">
 </p>
-The loss function in this case is taken to be the [L2 norm](http://mathworld.wolfram.com/L2-Norm.html) <br>
+
+The loss function in this case is taken to be the [L2 norm](https://mathworld.wolfram.com/L2-Norm.html) <br>
 Added support for the multiprocessing module to parallelize against different values of K respectively <br>
 
 ### Accelerating Compute
