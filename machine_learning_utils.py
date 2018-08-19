@@ -1,4 +1,4 @@
-import numpy as npi
+import numpy as np
 from sklearn.decomposition import PCA
 from typing import List
 from scipy.stats as stats
