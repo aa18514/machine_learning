@@ -54,7 +54,7 @@ def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
      return normalized_residual
 
-def histogram_residuals(residuals: Vector_float, ax: Axes):
+def histogram_residuals(residuals: Vector_float, ax: Axes)->(Vector_float, Axes):
      ax.set_xlabel('residual')
      ax.set_ylabel('observation numbers')
      ax.set_title('normality test')
