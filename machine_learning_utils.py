@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.decomposition import PCA
 from typing import List
-from scipy.stats as stats
-import matplotlib.axes.Axes
+import scipy.stats as stats
+from matplotlib.axes import Axes
 
 Vector_float = List[float]
 
@@ -31,26 +31,36 @@ def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
          vs.append(vo)
      return vs
 
-def homoscedasticity_test(normalized_residuals: Vector_float)->Vector_float:
+def barlett_test(x: Vector_float, partition_factor: int=50)->(Vector_float, int):
+    population = []
+    for i in range(0, len(x), partition_factor):
+        sample = []
+        for j in range(0, partition_factor):
+            sample.append(k * i + j)
+        population.append(sample)
+    print(*population)
+    return stats.bartlett(*population)
+
+def plot_sample_variances(normalized_residuals: Vector_float, ax: Axes)->(Vector_float, Axes):
     ax.set_xlabel('observation numbers')
     ax.set_ylabel('standardized residual')
     ax.set_title('homoscedasticity test')
     ax.grid(True)
     ax.set_facecolor((240./255, 248/255, 255./255))
-    ax.scatter(np.arange(0, len(residuals), 1), normalized_residuals, s=[5 for n in range(len(x))], c='r')
+    ax.scatter(np.arange(0, len(normalized_residuals), 1), normalized_residuals, s=[5 for n in range(len(normalized_residuals))], c='r')
 
 def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      centered_residual = (residuals - np.mean(residuals))**2
      weighted_residual = centered_residual/np.sum(centered_residual)
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
-     homoscedasticity_test(normalized_residual)
+     #homoscedasticity_test(normalized_residual, ax)
      return normalized_residual
 
- def histogram_residuals(residuals: Vector_float, ax: Axes):
+def histogram_residuals(residuals: Vector_float, ax: Axes):
      ax.set_xlabel('residual')
      ax.set_ylabel('observation numbers')
      ax.set_title('normality test')
-     ax.set_grid(True)
+     ax.grid(True)
      ax.set_facecolor((240./255, 248./255, 255./255))
      ax.set_facecolor((240./255, 248./255, 255./255))
      weights = np.ones_like(residuals)/float(len(residuals))
