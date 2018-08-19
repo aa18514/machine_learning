@@ -51,3 +51,47 @@ The joblib library was used to distribute work amongst multiple cores - in this 
 * move away from [NumPy] to [Tensorflow]
 * identify potential hotspots and move them to Amazon GPU/FPGA instances.
 * play around with different data types and investigate their affect on train and test accuracy.
+
+## Applying Non-Linear Transformation
+
+The non-linear transformation is taken to be each genre multipled with the rest of the genres in the dataset. <br> 
+The following figure shows the correlation coefficients between different genres in the dataset.
+
+<p align="center">
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/correlation_coefficients.png">
+</p>
+
+It is worth noting that the correlation coefficient between the genre 'Comedy' and 'Drama' is **-0.61976** which shows most of the movies that contain 'Comedy' do not contain 'Drama', and vice versa. <br> The original features remain unchanged and the transformed features are appended to the feature vector, yielding a new feature vector with dimension of **172**.
+
+## Results
+
+The following figures show the exponentially weighted training and test errors for 671 netflix users which makes it more convieniant to capture the trends in the train and test bias. The value of beta chose for the analysis is 0.9 which is similar to taking the mean over the last 10 iterations. <br>
+
+<div>
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/bias_against_K.png", width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/variance_against_K.png", width="400" height="400" />
+</div>
+
+<p align="center">
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/total_error.png" width="400" height="400" />
+</p>
+
+<div>
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/test_train_regularized_error.png" width="400" height="400" />
+</div>
+
+<br>
+
+<p align="center">
+    <img src="https://github.com/118514/machine_learning/machine_learning/blob/master/netflix_regression/non-linear-features" width="400" height="400" />
+</p>
+
+| | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
+| :---: | :-: | :-: | :-: | :-: | :-: |
+| **Unregularized (Original Features)** | 1.932715 | 0.564595 | 2.416220 | 0.130706 | 006.66937 |
+| **Regularized (Original Features)** | 1.889901 | 0.572407 | 2.276397 | 0.129983 | 476.689539 |
+| **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069 | 2100.70408 |
+
+While for the original features we see that moving from an Unreglarized Version to L2-Regularization has resulted in a decline in the test bias, while for the transformed features, the test bias nearly doubles. <br> This suggests we have too many features and a limited dataset, thus requiring dimensionality reduction techniques such as Principal Component Analysis <br>
+
