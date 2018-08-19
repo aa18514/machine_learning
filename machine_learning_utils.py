@@ -2,6 +2,7 @@ import numpy as npi
 from sklearn.decomposition import PCA
 from typing import List
 from scipy.stats as stats
+import matplotlib.axes.Axes
 
 Vector_float = List[float]
 
@@ -36,7 +37,7 @@ def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
      return normalized_residual
 
- def histogram_residuals(residuals, ax):
+ def histogram_residuals(residuals: Vector_float, ax: Axes):
      weights = np.ones_like(residuals)/float(len(residuals))
      fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
      ax.hist(residuals, weights=weights, bins=75, color='r')
