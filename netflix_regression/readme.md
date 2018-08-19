@@ -49,7 +49,7 @@ Added support for the multiprocessing module to parallelize against different va
 
 The joblib library was used to distribute work amongst multiple cores - in this case the process of finding an optimal weight vector for every user and getting the train and test bias and train and test variance for each user. This has been supported on 7 cores, but in the future the plan is to move the compute to **Amazon AWS** which can support upto 32 cores (in which case simply distributing work amongst multiple cores won't work and there needs to be some sort of agglomeration of events. I am also tempted to do the following:
 
-* move away from [NumPy] to [Tensorflow]
+* move away from [NumPy](http://www.numpy.org/) to [Tensorflow](https://www.tensorflow.org/)
 * identify potential hotspots and move them to Amazon GPU/FPGA instances.
 * play around with different data types and investigate their affect on train and test accuracy.
 
