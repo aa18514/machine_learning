@@ -9,7 +9,7 @@ def standardize(data: Vector_float, mean: float, std: float, epsilon: float=10**
     return (data - mean)/(std + epsilon)
 
 
-def pca_transformation(train_data, test_data, n_features):
+def pca_transformation(train_data: Vector_float, test_data: Vector_float, n_features:int)->(Vector_float, Vector_float, int):
      pca = PCA(n_components=n_features)
      pca.fit(train_data)
      modified_train_features = np.ones((train_data.shape[0], n_features+1))
@@ -18,7 +18,7 @@ def pca_transformation(train_data, test_data, n_features):
      modified_test_features[:, 1:]  = pca.transform(test_data)
      return modified_train_features, modified_test_features
 
-def exponential_weighted_average(error, beta=0.9):
+def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
      """for details of how EMEA is calculated please refer to
      https://en.wikipedia.org/wiki/Moving_average"""
      vo = 0.0
