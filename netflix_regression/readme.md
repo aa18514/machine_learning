@@ -64,6 +64,12 @@ The following figure shows the correlation coefficients between different genres
 
 It is worth noting that the correlation coefficient between the genre 'Comedy' and 'Drama' is **-0.61976** which shows most of the movies that contain 'Comedy' do not contain 'Drama', and vice versa. <br> The original features remain unchanged and the transformed features are appended to the feature vector, yielding a new feature vector with dimension of **172**.
 
+## Error modelling
+
+<div>
+    <img = src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/error_modelling.png">
+</div>
+
 ## Results
 
 The following figures show the exponentially weighted training and test errors for 671 netflix users which makes it more convieniant to capture the trends in the train and test bias. The value of beta chose for the analysis is 0.9 which is similar to taking the mean over the last 10 iterations. <br>
