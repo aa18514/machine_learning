@@ -69,12 +69,12 @@ It is worth noting that the correlation coefficient between the genre 'Comedy' a
 The following figures show the exponentially weighted training and test errors for 671 netflix users which makes it more convieniant to capture the trends in the train and test bias. The value of beta chose for the analysis is 0.9 which is similar to taking the mean over the last 10 iterations. <br>
 
 <div>
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/bias_against_K.png", width="400" height="400" />
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/variance_against_K.png", width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/bias_against_K.png", width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/variance_against_K.png", width="400" height="400" />
 </div>
 
 <p align="center">
-    <img src="https://github.com/aa18514/machine_learning/machine_learning/blob/master/netflix_regression/images/total_error.png" width="400" height="400" />
+    <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/total_error.png" width="400" height="400" />
 </p>
 
 <div>
