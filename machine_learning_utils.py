@@ -1,6 +1,7 @@
-import numpy as np
+import numpy as npi
 from sklearn.decomposition import PCA
 from typing import List
+from scipy.stats as stats
 
 Vector_float = List[float]
 
@@ -29,8 +30,16 @@ def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
          vs.append(vo)
      return vs
 
-def get_normalized_residuals(residuals):
+def get_normalized_residuals(residuals: Vector_float)->Vector_float:
      centered_residual = (residuals - np.mean(residuals))**2
      weighted_residual = centered_residual/np.sum(centered_residual)
      normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
      return normalized_residual
+
+ def histogram_residuals(residuals, ax):
+     weights = np.ones_like(residuals)/float(len(residuals))
+     fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
+     ax.hist(residuals, weights=weights, bins=75, color='r')
+     ax.plot(np.sort(residuals), fit, c='k', linestyle='-')
+     ax.text(5, 0.22, r'$\mu=%f,\ \sigma=%f$' % (np.mean(fit), np.std(fit)))
+
