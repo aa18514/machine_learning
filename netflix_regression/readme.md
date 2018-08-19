@@ -67,7 +67,7 @@ It is worth noting that the correlation coefficient between the genre 'Comedy' a
 ## Error modelling
 
 <div>
-    <img = src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/error_modelling.png" height="400">
+    <img = src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/error_modelling.png">
 </div>
 
 
