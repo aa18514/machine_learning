@@ -5,15 +5,15 @@ from sklearn.decomposition import PCA
 class file_reader:
         data = {}
         def __init__(self, movie_features, train_file, test_file):
-                self.__movieFeatures = movie_features
-                self.__trainFile = train_file
-                self.__testFile = test_file
-                self.data['movies'] = np.genfromtxt(self.__movieFeatures, delimiter = ',', dtype = float)[1:]
-                self.data['test']   = np.genfromtxt(self.__testFile, delimiter = ',', dtype = int)[1:]
-                self.data['train']  = np.genfromtxt(self.__trainFile, delimiter=',', dtype = int)[1:]
+                self.data['movies'] = np.genfromtxt(movie_features, delimiter = ',', dtype = float)[1:]
+                self.data['best state'], self.data['correlation coefficients'] = self.read_movie_features(movie_features)
+                self.data['movies'] = self.non_linear_transformation()
+                self.data['test ratings']   = np.genfromtxt(test_file, delimiter = ',', dtype = int)[1:]
+                self.data['train ratings']  = np.genfromtxt(train_file, delimiter=',', dtype = int)[1:]
                 self.data['movies'][:, 0] = 1
-                self.means = []
-                self.std = []
+                self.data['train features'] = self.data['movies'][self.data['train ratings'][:, 1] - 1]
+                self.data['test features'] = self.data['movies'][self.data['test ratings'][:, 1] - 1]
+
 
         def calculate_correlation_coeff(self, labels):
                 data = self.data['movies']
@@ -37,15 +37,6 @@ class file_reader:
                 return best_state, pearsonCoefficients
 
 
-        def scale_features(self, features, epsilon):
-                if len(self.means) == 0:
-                        self.means = np.mean(features[:, 1:len(features[0])], axis = 0, keepdims = True)
-                        self.std = np.std(features[:, 1:len(features[0])], axis = 0, keepdims = True) + epsilon
-                features[:, 1:len(features[0])] = (features[:, 1:len(features[0])] - self.means)/self.std
-                return features
-
-
-
         def non_linear_transformation(self):
                 featureDimension = len(self.data['movies'][0])
                 temp = np.array([[0] * 172] * len(self.data['movies']))
@@ -59,19 +50,14 @@ class file_reader:
                                 curr = curr + 1
                 return temp
 
-        def read_movie_features(self, args):
-                with open(self.__movieFeatures) as f:
+        def read_movie_features(self, movieFile):
+                with open(movieFile) as f:
                         labels = f.readline()
                         labels = labels.split()
-                        featureDimension = len(self.data['movies'][0])
                         start_time = datetime.datetime.now()
                         best_state, pearsonCoefficients = self.calculate_correlation_coeff(labels)
                         end_time = datetime.datetime.now()
-                        self.data['movies'] = self.non_linear_transformation()
-                        return best_state, pearsonCoefficients, self.data['movies']
+                        return best_state, pearsonCoefficients
 
-        def read_train_data(self):
-                return self.data['train']
-
-        def read_test_data(self):
-                return self.data['test']
+        def return_attributes(self):
+                return self.data
