@@ -71,7 +71,7 @@ Some important assumptions need to be verified without which the model can be mi
     <img = src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/error_modelling.png">
 </div>
 
-From the diagram above, we can clearly see that both of the conditions are satisfied <br>
+From the diagram above, we can clearly see that both of the conditions are satisfied. Furthermore I use the [Bartlett Test]() to confirm the Homoscedasticity of data, where the samples in predicted values are evenly split into groups of 10. This has resulted in a test statistic equal to **7.016e-12** and a p-value equal to **1**. This we can accept the hypothesis that that the residuals and **x** (the independent variable) are uncorreleated. <br>
 
 ## Results
 
