@@ -1,6 +1,9 @@
 import numpy as np 
 import datetime
 from sklearn.decomposition import PCA
+import sys
+sys.path.insert(0, '..')
+import machine_learning_utils
 
 class file_reader:
         data = {}
@@ -59,5 +62,6 @@ class file_reader:
                         end_time = datetime.datetime.now()
                         return best_state, pearsonCoefficients
 
-        def return_attributes(self):
-                return self.data
+        def fetch_data(self, pre_process_fn=machine_learning_utils.z_score):
+            self.data['train features'][:, 1:], self.data['test features'][:, 1:] = pre_process_fn(self.data['train features'][:, 1:], self.data['test features'][:, 1:])
+            return self.data
