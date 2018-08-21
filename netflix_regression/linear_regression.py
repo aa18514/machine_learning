@@ -8,13 +8,14 @@ import datetime
 import itertools
 from sklearn import linear_model
 from itertools import chain
-from sklearn.decomposition import PCA
 from sklearn.cross_validation import KFold
-from file_reader import compute_pca
 from datetime import timedelta
-from file_reader import file_reader
-#from joblib import Parallel, delayed
+from file_reader import *
+from joblib import Parallel, delayed
 import multiprocessing
+import pandas as pd
+
+DATA_SET = {}
 
 
 def quantize(expected_ratings):
@@ -85,10 +86,12 @@ def naive_linear_regression(movie_ratings, res):
 
 def compute(weight, partitioned_test_ratings, partitioned_movie_features):
     errors = np.array([])
+    pred = []
     for users in range(671):
-        e = quantize(np.dot(weight[users], partitioned_movie_features[users].T))
+        e = np.dot(weight[users], partitioned_movie_features[users].T)
+        pred.extend(e)
         errors = np.append(errors, np.mean((e - partitioned_test_ratings[users])**2))
-    return errors
+    return pred, errors
 
 
 def processInput(i, ratings, movie_features, algorithm, args):
@@ -131,9 +134,8 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
     regularized_constants, partitioned_train_ratings, \
     partitioned_movie_features, weight = \
         extract_person(train_ratings, algorithm, movie_features, args[0], args[1])
-    return regularized_constants, weight,\
-           compute(weight, partitioned_train_ratings, partitioned_movie_features)
-
+    pred, errors = compute(weight, partitioned_train_ratings, partitioned_movie_features)
+    return regularized_constants, weight, pred, errors
 
 def func(k, movie_features, train_data):
     regularized_constants, weight, train_error = \
@@ -152,51 +154,16 @@ def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
     plt.show()
 
 
-def compute_multiple_pca(i, TrainRatings, TestRatings, TrainMovieFeatures, TestMovieFeatures, n_features, epsilon=10**-8):
-    person_train = TrainRatings[TrainRatings[:, 0] == i]
-    person_test = TestRatings[TestRatings[:, 0] == i]
-    train_movie_ratings = TrainMovieFeatures[person_train[:, 1] - 1]
-    test_movie_ratings = TestMovieFeatures[person_test[:, 1] - 1]
-    mean = np.mean(train_movie_ratings[:, 1:], axis=0)
-    std = np.std(train_movie_ratings[:, 1:], axis=0)
-    train_movie_ratings[:, 1:] = (train_movie_ratings[:, 1:] - mean)/(std + epsilon)
-    test_movie_ratings[:, 1:] = (test_movie_ratings[:, 1:] - mean)/(std + epsilon)
-    pca = PCA(n_components=n_features)
-    pca.fit(train_movie_ratings)
-    a = pca.transform(train_movie_ratings)
-    return [1], a, pca.transform(test_movie_ratings)
-
-
-def standardize(data, mean, std, epsilon=10**-8):
-    """standardize to zero mean and unit variance"""
-    return (data - mean)/(std + epsilon)
-
-
-def pca_transformation(train_data, test_data, n_features):
-    pca = PCA(n_components=n_features)
-    pca.fit(train_data)
-    b = np.ones((70002, n_features+1))
-    c = np.ones((30002, n_features+1))
-    b[:, 1:] = pca.transform(train_data)
-    c[:, 1:] = pca.transform(test_data)
-    return b, c
-    
-def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, n_features, args, epsilon=10**-8):
+def linear_regression_with_regularization(n_features, args):
     """a total of 671 users, 700003 movies, the function handles linear_model regression
     for each user, linear regression with regularization, and non -linear transformation """
-    tr = movie_features[train_ratings[:, 1] - 1]
-    ts = movie_features[test_ratings[:, 1] - 1]
-    tr[:, 1:] = standardize(tr[:, 1::], np.mean(tr[:, 1], axis = 0), np.std(tr[:, 1], axis = 0))
-    
-    ts[:, 1:] = standardize(ts[:, 1:], np.mean(tr[:, 1], axis = 0), \
-                            np.std(tr[:, 1], axis = 0))
-    
-    b, c = pca_tansformation(tr, ts, n_features)
-    #b[:, 0] = train_ratings[:, 1]
-    #c[:, 0] = test_ratings[:, 1]
+    train_ratings = DATA_SET['train ratings']
+    test_ratings = DATA_SET['test ratings']
+    tr = DATA_SET['train features']
+    ts = DATA_SET['test features']
+     #b, c = pca_tansformation(tr, ts, n_features)
 
     if args.verbose == 1 or args.verbose == 3:
-        print("success")
         K = [3, 4, 5, 6, 7, 8]
         regularized_constants = []
         train_errors = []
@@ -213,73 +180,71 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
         minimum = np.argmin(error)
         return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, ts)
     else:
-        _, weight, train_error = compute_train_error(train_ratings, tr, "lin_reg", None, None)
-        return train_error, compute_test_error(weight, test_ratings, ts)
+        _, weight, _, train_error = compute_train_error(train_ratings, tr, "lin_reg", None, None)
+        a, b = compute_test_error(weight, test_ratings, ts)
+        return train_error, a, b
 
-
-def exponential_weightings(error, beta):
-    vo = 0.0
-    error = (1 - beta) * error
-    vs = []
-    for err in range(len(error)):
-        vo = beta * vo + err
-        vs.append(vo)
-    return vs
-
-
-def regression_analysis(movie_features, train_ratings, test_ratings, args):
-    beta = 0.9
-    times = []
-    test_bias = []
-    errors = []
-    train_errors = []
-    train_variance = []
-    test_variance = []
-    number_of_features = 50
-
+def pca_analysis():
+    times = list()
+    test_bias = list()
+    errors = list()
+    train_errors = list()
+    test_variance = list()
+    number_of_features = 2
     for i in range(1, number_of_features):
         start_time = datetime.datetime.now()
-        error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
+        error_train, p, error_test = linear_regression_with_regularization(0, args)
         finish_time = datetime.datetime.now()
         times.append((finish_time - start_time).total_seconds())
         errors.append(np.mean(error_test))
         train_errors.append(np.mean(error_train))
         test_variance.append(np.var(error_test))
         train_variance.append(np.var(error_train))
-
-    p = np.poly1d(np.polyfit(np.arange(1, number_of_features, 1), times, 3))
     x = np.arange(1, number_of_features, 1)
+    p = np.poly1d(np.polyfit(x, times, 3))
     plt.plot(x, p(x))
     plt.plot(x, times, 'r+')
     plt.title('PCA analysis')
-    plt.xlabel('n_components')
+    plt.xlabel('n components')
     plt.ylabel('time/s')
     plt.show()
     fig = plt.figure()
     plt.title('PCA analysis')
     ax = plt.subplot(111)
-    ax.plot(np.arange(1, number_of_features, 1), errors, label='test bias')
-    ax.plot(np.arange(1, number_of_features, 1), train_errors, label='train error')
+    ax.plot(x, errors, label='test bias')
+    ax.plot(x, train_errors, label='train bias')
     ax.legend()
-    #plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
-    plt.xlabel('n_components')
+    plt.xlabel('n components')
     plt.ylabel('bias')
     plt.show()
     plt.title('variance')
     ax = plt.subplot(111)
-    ax.plot(np.arange(1, number_of_features, 1), train_variance, label='test variance')
-    ax.plot(np.arange(1, number_of_features, 1), test_variance, label='train variance')
+    ax.plot(x, train_variance, label='train variance')
+    ax.plot(x, test_variance, label='test variance')
     ax.legend()
-    #plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
-    plt.xlabel('n_components')
+    plt.xlabel('n components')
     plt.ylabel('variance')
     plt.show()
+
+def regression_analysis(args):
+    start_time = datetime.datetime.now()
+    error_train, p, error_test = linear_regression_with_regularization(0, args)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
+    plt.tight_layout()
+    residuals = DATA_SET['test ratings'][:, 2] - p
+    normalized_residuals = machine_learning_utils.get_normalized_residuals(residuals)
+    machine_learning_utils.plot_sample_variances(normalized_residuals, ax1)
+    test_statistic, p_value = machine_learning_utils.barlett_test(p)
+    machine_learning_utils.histogram_residuals(residuals, ax2)
+    print("test_statistic, p_value: {} {}".format(test_statistic, p_value))
+    plt.tight_layout()
+    plt.show()
+    finish_time = datetime.datetime.now()
     #print("program took: %f s" % ((b-a).total_seconds()))
     #print("train bias: %f"  % (np.mean(error_train)))
     #print("train var:  %f"  % (np.var(error_train)))
     #print("test bias:  %f"  % (np.mean(error_test)))
     #print("test var:   %f"  % (np.var(error_test)))
-
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser(
@@ -296,10 +261,15 @@ if __name__ == "__main__":
     )
     PARSER.add_argument('-v', '--verbose', action="count", help="used to switch between linear regression with and w/o cross_validation")
     ARGS = PARSER.parse_args()
-    FILE = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
-    BEST_STATE, PEARSON_COEFFICIENTS, MOVIE_FEATURES = FILE.read_movie_features(ARGS)
+    FILE = file_reader(
+            "movie-data\\movie-features.csv",
+            "movie-data\\ratings-train.csv",
+            "movie-data\\ratings-test.csv"
+            )
+    DATA_SET = FILE.fetch_data()
+    BEST_STATE, PEARSON_COEFFICIENTS = DATA_SET['best state'], DATA_SET['correlation coefficients']
     if ARGS.verbose != 0:
-        regression_analysis(MOVIE_FEATURES, FILE.read_train_data(), FILE.read_test_data(), ARGS)
+        regression_analysis(ARGS)
         print("pearson coefficient between %s and %s is %f" % (BEST_STATE[0], BEST_STATE[1], BEST_STATE[2]))
         plt.plot(PEARSON_COEFFICIENTS, 'g*')
         plt.xlabel('genre tuple')
