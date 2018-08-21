@@ -4,15 +4,19 @@ from typing import List
 import scipy.stats as stats
 from matplotlib.axes import Axes
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn import preprocessing
 
 Vector_float = List[float]
 
-def z_score(data: Vector_float, mean: Vector_float, std: Vector_float, epsilon: float=10**-8)->(Vector_float, Vector_float, float):
+def z_score(train_data: Vector_float, test_data: Vector_float)->(Vector_float, Vector_float):
     """normalize to zero mean and unit variance here the mean and standard deviation of feature 
     vectors in training data are used to normalize both train and test data"""
-    mean = mean.reshape(1, data.shape[1])
-    std = std.reshape(1, data.shape[1])
-    return (data - mean)/(std + epsilon)
+    std_scale = preprocessing.StandardScaler().fit(train_data)
+    train_data = std_scale.transform(train_data)
+    test_data = std_scale.transform(test_data)
+    #print("this is mean of first feature train vector {}".format(np.mean(train_data[:, 1])))
+    #print("this is mean of first feature test vector {}".format(np.mean(test_data[:, 1])))
+    return train_data, test_data
 
 
 def pca_transformation(train_data: Vector_float, test_data: Vector_float, n_features:int)->(Vector_float, Vector_float, int):
