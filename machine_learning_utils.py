@@ -19,6 +19,13 @@ def z_score(train_data: Vector_float, test_data: Vector_float)->(Vector_float, V
     return train_data, test_data
 
 
+def min_max(train_data: Vector_float, test_data: Vector_float)->(Vector_float, Vector_float):
+    minmax_scale = preprocessing.MinMaxScaler().fit(train_data)
+    train_data = minmax_scale.transform(train_data)
+    test_data = minmax_scale.transform(test_data)
+    return train_data, test_data
+
+
 def pca_transformation(train_data: Vector_float, test_data: Vector_float, n_features:int)->(Vector_float, Vector_float, int):
      pca = PCA(n_components=n_features)
      pca.fit(train_data)
