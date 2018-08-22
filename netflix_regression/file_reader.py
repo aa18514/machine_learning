@@ -24,15 +24,15 @@ class file_reader:
                 pearsonCoefficients = []
                 featureDimension = len(data[0])
                 minimum = -0.0001
-                x = data[:, 1:featureDimension]
+                x = np.array(data[:, 1:featureDimension], dtype=int)
                 x_mean = np.mean(x, keepdims = True, axis = 0)
                 x2_mean = np.mean(x**2, keepdims = True, axis = 0)
                 for i in range(1, featureDimension):
-                        y = data[:, (i+1):featureDimension]
+                        y = np.array(data[:, (i+1):featureDimension], dtype=int)
                         y_mean = x_mean[:, i:featureDimension - 1]
                         for j in range(i, featureDimension - 1):
                                 y_mean = x_mean[:, j]
-                                pearsonCoefficient = np.mean(x[:, (i - 1)] * y[:, (j - i)]) - x_mean[:, (i - 1)] * y_mean/np.sqrt((x2_mean[:, (i-1)] - (x_mean[:, (i-1)]**2)) * (np.mean(y[:, (j - i)]**2) - (y_mean * y_mean)))
+                                pearsonCoefficient = np.mean(~((x[:, (i - 1)] == 0) | (y[:, (j - i)] == 0))) - (((x_mean[:, (i - 1)] * y_mean)))/np.sqrt((x2_mean[:, (i-1)] - (x_mean[:, (i-1)]**2)) * (np.mean(y[:, (j - i)]) - (y_mean * y_mean)))
                                 if pearsonCoefficient < minimum:
                                         best_state = [labels[i], labels[j+1], pearsonCoefficient]
                                         minimum = pearsonCoefficient
@@ -49,7 +49,7 @@ class file_reader:
                         x = self.data['movies'][:, i]
                         for j in range(i+1, featureDimension):
                                 y = self.data['movies'][:, j]
-                                temp[:, curr] = x * y
+                                temp[:, curr] = np.logical_and(x, y)
                                 curr = curr + 1
                 return temp
 
