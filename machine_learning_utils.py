@@ -7,6 +7,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn import preprocessing
 
 Vector_float = List[float]
+Vector_int = List[int]
 
 def z_score(train_data: Vector_float, test_data: Vector_float)->(Vector_float, Vector_float):
     """normalize to zero mean and unit variance here the mean and standard deviation of feature 
@@ -62,7 +63,7 @@ def generate_samples(x: Vector_float, partition_factor: int)-> (Vector_float, in
     return population
 
 
-def barlett_test(x: Vector_float, partition_factor: int=2)->(Vector_float, int):
+def barlett_test(x: Vector_float, partition_factor: int=1000)->(Vector_float, int):
     return stats.bartlett(*generate_samples(x, partition_factor))
 
 
@@ -95,3 +96,5 @@ def histogram_residuals(residuals: Vector_float, ax: Axes, alpha=0.005)->(Vector
      ax.plot(np.sort(residuals), fit, c='k', linestyle='-')
      ax.text(5, 0.22, r'$\mu=%f,\ \sigma=%f$' % (np.mean(fit), np.std(fit)))
 
+def binary_vector_multiplier(x: Vector_int, y: Vector_int)->(Vector_int, Vector_int):
+    return ~((x == 0) | (y == 0))
