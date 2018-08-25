@@ -27,7 +27,8 @@ def min_max(train_data: VectorFloat, test_data: VectorFloat)->(VectorFloat, Vect
     return train_data, test_data
 
 
-def pca_transformation(train_data: VectorFloat, test_data: VectorFloat, n_features: int)->(VectorFloat, VectorFloat, int):
+def pca_transformation(train_data: VectorFloat, test_data: VectorFloat, n_features: int)->\
+        (VectorFloat, VectorFloat, int):
     pca = PCA(n_components=n_features)
     pca.fit(train_data)
     modified_train_features = np.ones((train_data.shape[0], n_features+1))
@@ -56,9 +57,9 @@ def generate_samples(x: VectorFloat, partition_factor: int)-> (VectorFloat, int)
     for i in range(0, len(x), partition_factor):
         sample = []
         for j in range(0, partition_factor):
-            if (i + partition_factor) < len(x): 
+            if (i + partition_factor) < len(x):
                 sample.append(x[i + j])
-        if len(sample) != 0:
+        if not sample:
             population.append(sample)
     return population
 
@@ -73,13 +74,15 @@ def plot_sample_variances(normalized_residuals: VectorFloat, ax: Axes)->(VectorF
     ax.set_title('homoscedasticity test')
     ax.grid(True)
     ax.set_facecolor((240./255, 248/255, 255./255))
-    ax.scatter(np.arange(0, len(normalized_residuals), 1), normalized_residuals, s=[5 for n in range(len(normalized_residuals))], c='r')
+    ax.scatter(np.arange(0, len(normalized_residuals), 1), normalized_residuals,\
+            s=[5 for n in range(len(normalized_residuals))], c='r')
 
 
 def get_normalized_residuals(residuals: VectorFloat)->VectorFloat:
     centered_residual = (residuals - np.mean(residuals))**2
     weighted_residual = centered_residual/np.sum(centered_residual)
-    normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
+    normalized_residual = residuals/\
+            (np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
     return normalized_residual
 
 
