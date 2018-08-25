@@ -26,11 +26,6 @@ def quantize(expected_ratings):
     """
     ratings = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.50]
     expected_ratings[np.where(expected_ratings < 0.25)] = 0.00
-    for val in ratings:
-        expected_ratings[np.where(np.logical_and(expected_ratings >= val - 0.25,\
-                                                 expected_ratings <= val))] = val
-        expected_ratings[np.where(np.logical_and(expected_ratings > val,\
-                                                 expected_ratings < val + 0.25))] = val
     expected_ratings[np.where(expected_ratings >= 4.75)] = 5.00
     return expected_ratings
 
@@ -88,7 +83,7 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
     errors = np.array([])
     pred = []
     for users in range(671):
-        e = np.dot(weight[users], partitioned_movie_features[users].T)
+        e = quantize(np.dot(weight[users], partitioned_movie_features[users].T))
         pred.extend(e)
         errors = np.append(errors, np.mean((e - partitioned_test_ratings[users])**2))
     return pred, errors
@@ -101,8 +96,9 @@ def processInput(i, ratings, movie_features, algorithm, args):
     the processInput function is parallelized between multiple users amongst n cores
     where n is the maximum number of cores present on the CPU
     """
-    person = ratings[(ratings[:, 0] - 1) == i]
-    movie_ratings = movie_features[np.where(ratings[:, 0] - 1 == i)][:, 1:]
+    person_id = ratings[:, 0] - 1
+    person = ratings[person_id == i]
+    movie_ratings = movie_features[person_id == i]
     feature_dimension = len(movie_ratings[0])
     w = None
     rg_constant = None
@@ -115,7 +111,7 @@ def processInput(i, ratings, movie_features, algorithm, args):
 
 
 def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
-    j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())\
+    j = np.array(Parallel(n_jobs=7)\
             (delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
     regularized_constants = np.array([x for _, x in sorted(zip(j[:, 4], j[:, 0]))])
     weight = np.array([x for _, x in sorted(zip(j[:, 4], j[:, 3]))])
@@ -130,7 +126,8 @@ def compute_test_error(weight, test_ratings, movie_features):
     return compute(weight, partitioned_test_ratings, partitioned_movie_features)
 
 
-def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwargs):
+def compute_train_error(movie_features, algorithm, *args, **kwargs):
+    train_ratings = DATA_SET['train ratings']
     regularized_constants, partitioned_train_ratings, \
     partitioned_movie_features, weight = \
         extract_person(train_ratings, algorithm, movie_features, args[0], args[1])
@@ -138,20 +135,9 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
     return regularized_constants, weight, pred, errors
 
 def func(k, movie_features, train_data):
-    regularized_constants, weight, train_error = \
-        compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
+    regularized_constants, weight, pred, train_error = \
+        compute_train_error(movie_features, "k_fold", np.logspace(-4, 0, 50), k)
     return regularized_constants, train_error, weight
-
-
-def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-    if not args:
-        plt.plot(x, y)
-    else:
-        plt.plot(x, y, args[0])
-    plt.show()
 
 
 def linear_regression_with_regularization(n_features, args):
@@ -169,7 +155,7 @@ def linear_regression_with_regularization(n_features, args):
         train_errors = []
         final_weights = []
         for i in K:
-            rg, train_error, weight = func(i, b, train_ratings)
+            rg, train_error, weight = func(i, tr, train_ratings)
             regularized_constants.append(rg)
             train_errors.append(train_error)
             final_weights.append(weight)
@@ -180,7 +166,7 @@ def linear_regression_with_regularization(n_features, args):
         minimum = np.argmin(error)
         return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, ts)
     else:
-        _, weight, _, train_error = compute_train_error(train_ratings, tr, "lin_reg", None, None)
+        _, weight, _, train_error = compute_train_error(tr, "lin_reg", None, None)
         a, b = compute_test_error(weight, test_ratings, ts)
         return train_error, a, b
 
@@ -226,11 +212,14 @@ def pca_analysis():
     plt.ylabel('variance')
     plt.show()
 
-def regression_analysis(args):
-    start_time = datetime.datetime.now()
-    error_train, p, error_test = linear_regression_with_regularization(0, args)
+def regression_analysis(args, trials=20):
+    arithmetic_mean = list()
+    for i in range(trials):
+       start_time = datetime.datetime.now()
+       error_train, p, error_test = linear_regression_with_regularization(0, args)
+       finish_time = datetime.datetime.now()
+       arithmetic_mean.append((finish_time - start_time).total_seconds())
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
-    plt.tight_layout()
     residuals = DATA_SET['test ratings'][:, 2] - p
     normalized_residuals = machine_learning_utils.get_normalized_residuals(residuals)
     machine_learning_utils.plot_sample_variances(normalized_residuals, ax1)
@@ -238,13 +227,12 @@ def regression_analysis(args):
     machine_learning_utils.histogram_residuals(residuals, ax2)
     print("test_statistic, p_value: {} {}".format(test_statistic, p_value))
     plt.tight_layout()
+    print("program took: {} s".format(np.mean(arithmetic_mean)))
+    print("train bias: {}".format(np.mean(error_train)))
+    print("train var: {}".format(np.var(error_train)))
+    print("test bias: {}".format(np.mean(error_test)))
+    print("test var: {}".format(np.var(error_test)))
     plt.show()
-    finish_time = datetime.datetime.now()
-    #print("program took: %f s" % ((b-a).total_seconds()))
-    #print("train bias: %f"  % (np.mean(error_train)))
-    #print("train var:  %f"  % (np.var(error_train)))
-    #print("test bias:  %f"  % (np.mean(error_test)))
-    #print("test var:   %f"  % (np.var(error_test)))
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser(
