@@ -1,6 +1,6 @@
+from typing import List
 import numpy as np
 from sklearn.decomposition import PCA
-from typing import List
 import scipy.stats as stats
 from matplotlib.axes import Axes
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -10,7 +10,7 @@ Vector_float = List[float]
 Vector_int = List[int]
 
 def z_score(train_data: Vector_float, test_data: Vector_float)->(Vector_float, Vector_float):
-    """normalize to zero mean and unit variance here the mean and standard deviation of feature 
+    """normalize to zero mean and unit variance here the mean and standard deviation of feature
     vectors in training data are used to normalize both train and test data"""
     std_scale = preprocessing.StandardScaler().fit(train_data)
     train_data = std_scale.transform(train_data)
@@ -27,28 +27,28 @@ def min_max(train_data: Vector_float, test_data: Vector_float)->(Vector_float, V
     return train_data, test_data
 
 
-def pca_transformation(train_data: Vector_float, test_data: Vector_float, n_features:int)->(Vector_float, Vector_float, int):
-     pca = PCA(n_components=n_features)
-     pca.fit(train_data)
-     modified_train_features = np.ones((train_data.shape[0], n_features+1))
-     modified_test_features = np.ones((test_data.shape[0], n_features+1))
-     modified_train_features[:, 1:] = pca.transform(train_data)
-     modified_test_features[:, 1:]  = pca.transform(test_data)
-     #modified_train_features[:, 0] = train_data[:, 1]
-     #modified_test_features[:, 0] = test_data[:, 1]
-     return modified_train_features, modified_test_features
+def pca_transformation(train_data: Vector_float, test_data: Vector_float, n_features: int)->(Vector_float, Vector_float, int):
+    pca = PCA(n_components=n_features)
+    pca.fit(train_data)
+    modified_train_features = np.ones((train_data.shape[0], n_features+1))
+    modified_test_features = np.ones((test_data.shape[0], n_features+1))
+    modified_train_features[:, 1:] = pca.transform(train_data)
+    modified_test_features[:, 1:] = pca.transform(test_data)
+    #modified_train_features[:, 0] = train_data[:, 1]
+    #modified_test_features[:, 0] = test_data[:, 1]
+    return modified_train_features, modified_test_features
 
 
 def exponential_weighted_average(error: Vector_float, beta=0.9)->(Vector_float):
-     """for details of how EMEA is calculated please refer to
-     https://en.wikipedia.org/wiki/Moving_average"""
-     vo = 0.0
-     error = (1 - beta) * error
-     vs = []
-     for i in range(len(error)):
-         vo = (1 - beta) * vo + beta*error[i]
-         vs.append(vo)
-     return vs
+    """for details of how EMEA is calculated please refer to
+    https://en.wikipedia.org/wiki/Moving_average"""
+    vo = 0.0
+    error = (1 - beta) * error
+    vs = []
+    for value in error:
+        vo = (1 - beta) * vo + beta*value
+        vs.append(vo)
+    return vs
 
 
 def generate_samples(x: Vector_float, partition_factor: int)-> (Vector_float, int):
@@ -63,7 +63,7 @@ def generate_samples(x: Vector_float, partition_factor: int)-> (Vector_float, in
     return population
 
 
-def barlett_test(x: Vector_float, partition_factor: int=1000)->(Vector_float, int):
+def barlett_test(x: Vector_float, partition_factor: int = 1000)->(Vector_float, int):
     return stats.bartlett(*generate_samples(x, partition_factor))
 
 
@@ -77,24 +77,24 @@ def plot_sample_variances(normalized_residuals: Vector_float, ax: Axes)->(Vector
 
 
 def get_normalized_residuals(residuals: Vector_float)->Vector_float:
-     centered_residual = (residuals - np.mean(residuals))**2
-     weighted_residual = centered_residual/np.sum(centered_residual)
-     normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
-     return normalized_residual
+    centered_residual = (residuals - np.mean(residuals))**2
+    weighted_residual = centered_residual/np.sum(centered_residual)
+    normalized_residual = residuals/(np.var(residuals) * (1 - weighted_residual - (1/len(residuals))))
+    return normalized_residual
 
 
-def histogram_residuals(residuals: Vector_float, ax: Axes, alpha=0.005)->(Vector_float, Axes):
-     ax.set_xlabel('residual')
-     ax.set_ylabel('observation numbers')
-     ax.set_title('normality test')
-     ax.grid(True)
-     ax.set_facecolor((240./255, 248./255, 255./255))
-     ax.set_facecolor((240./255, 248./255, 255./255))
-     weights = np.ones_like(residuals)/float(len(residuals))
-     fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
-     ax.hist(residuals, bins=75, weights=weights, color='r')
-     ax.plot(np.sort(residuals), fit, c='k', linestyle='-')
-     ax.text(5, 0.22, r'$\mu=%f,\ \sigma=%f$' % (np.mean(fit), np.std(fit)))
+def histogram_residuals(residuals: Vector_float, ax: Axes)->(Vector_float, Axes):
+    ax.set_xlabel('residual')
+    ax.set_ylabel('observation numbers')
+    ax.set_title('normality test')
+    ax.grid(True)
+    ax.set_facecolor((240./255, 248./255, 255./255))
+    ax.set_facecolor((240./255, 248./255, 255./255))
+    weights = np.ones_like(residuals)/float(len(residuals))
+    fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
+    ax.hist(residuals, bins=75, weights=weights, color='r')
+    ax.plot(np.sort(residuals), fit, c='k', linestyle='-')
+    ax.text(5, 0.22, r'$\mu=%f,\ \sigma=%f$' % (np.mean(fit), np.std(fit)))
 
-def binary_vector_multiplier(x: Vector_int, y: Vector_int)->(Vector_int, Vector_int):
-    return ~((x == 0) | (y == 0))
+def binary_vector_multiplier(vec_1: Vector_int, vec_2: Vector_int)->(Vector_int, Vector_int):
+    return ~((vec_1 == 0) | (vec_2 == 0))
