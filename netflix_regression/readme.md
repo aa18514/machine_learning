@@ -98,7 +98,7 @@ The following figures show the exponentially weighted training and test errors f
 </p>
 
 | | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | R<sup>2</sup> | time (s) |
-| :---: | :-: | :-: | :-: | :-: | :-: |
+| :---: | :-: | :-: | :-: | :-: | :-: | :-: |
 | **Unregularized (Original Features)** | 1.932715 | 0.564595 | 2.416220 | 0.130706 | | 0.636 |
 | **Regularized (Original Features)** | 1.8783 | 0.559231 | 2.3075 | 0.1256 | | 564.307 |
 | **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069 | | 2100.70408 |
