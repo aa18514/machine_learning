@@ -40,14 +40,13 @@ def pca_transformation(train_data: VectorFloat, test_data: VectorFloat, n_featur
     return modified_train_features, modified_test_features
 
 
-def exponential_weighted_average(error: VectorFloat, beta=0.9)->(VectorFloat):
+def exponential_weighted_average(error: VectorFloat, beta=0.75)->(VectorFloat):
     """for details of how EMEA is calculated please refer to
     https://en.wikipedia.org/wiki/Moving_average"""
     vo = 0.0
-    error = (1 - beta) * error
     vs = []
     for value in error:
-        vo = (1 - beta) * vo + beta*value
+        vo = beta * vo + (1- beta)*value
         vs.append(vo)
     return vs
 
@@ -95,7 +94,7 @@ def histogram_residuals(residuals: VectorFloat, ax: Axes)->(VectorFloat, Axes):
     ax.set_facecolor((240./255, 248./255, 255./255))
     weights = np.ones_like(residuals)/float(len(residuals))
     fit = stats.norm.pdf(np.sort(residuals), np.mean(residuals), np.std(residuals))
-    ax.hist(residuals, bins=75, weights=weights, color='r')
+    ax.hist(residuals, bins=20, weights=weights, color='r')
     ax.plot(np.sort(residuals), fit, c='k', linestyle='-')
     ax.text(5, 0.22, r'$\mu=%f,\ \sigma=%f$' % (np.mean(fit), np.std(fit)))
 
