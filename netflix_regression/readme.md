@@ -97,11 +97,11 @@ The following figures show the exponentially weighted training and test errors f
     <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/non-linear-features.png" width="400" height="400" />
 </p>
 
-| | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
+| | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | R<sup>2</sup> | time (s) |
 | :---: | :-: | :-: | :-: | :-: | :-: |
-| **Unregularized (Original Features)** | 1.932715 | 0.564595 | 2.416220 | 0.130706 | 0.991567 |
-| **Regularized (Original Features)** | 1.889901 | 0.572407 | 2.276397 | 0.129983 | 476.689539 |
-| **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069 | 2100.70408 |
+| **Unregularized (Original Features)** | 1.932715 | 0.564595 | 2.416220 | 0.130706 | | 0.636 |
+| **Regularized (Original Features)** | 1.8783 | 0.559231 | 2.3075 | 0.1256 | | 564.307 |
+| **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069 | | 2100.70408 |
 
 While for the original features we see that moving from an Unreglarized Version to L2-Regularization has resulted in a decline in the test bias, while for the transformed features, the test bias nearly doubles. <br> This suggests we have too many features and a limited dataset, thus requiring dimensionality reduction techniques such as Principal Component Analysis <br>
 
