@@ -103,5 +103,3 @@ The following figures show the exponentially weighted training and test errors f
 | **Regularized (Original Features)** | 1.37051 | 0.7478 | 2.3075 | 0.1256 | -0.0195 | 564.307 | 7 |
 | **Regularized (Transformed Features)** | 1.28047 | 0.5522 | 1.03005 | 0.068069 | -0.143 | 1910.204 | 7 |
 
-While for the original features we see that moving from an Unreglarized Version to L2-Regularization has resulted in a decline in the test bias, while for the transformed features, the test bias nearly doubles. <br> This suggests we have too many features and a limited dataset, thus requiring dimensionality reduction techniques such as Principal Component Analysis <br>
-
