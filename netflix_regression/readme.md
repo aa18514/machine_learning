@@ -97,7 +97,7 @@ The following figures show the exponentially weighted training and test errors f
     <img src="https://github.com/aa18514/machine_learning/blob/master/netflix_regression/images/non-linear-features.png" width="400" height="400" />
 </p>
 
-| | [RMSE Test](https://en.wikipedia.org/wiki/Root-mean-square_deviation) | [RMSE Train](https://en.wikipedia.org/wiki/Root-mean-square_deviation) | [Mean Test Variance](https://en.wikipedia.org/wiki/Variance) | [Mean Train Variance](https://en.wikipedia.org/wiki/Variance) | [R<sup>2</sup>](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) | time (s) | [cores](https://en.wikipedia.org/wiki/Multi-core_processor)
+| | [RMSE Test](https://en.wikipedia.org/wiki/Root-mean-square_deviation) | [RMSE Train](https://en.wikipedia.org/wiki/Root-mean-square_deviation) | [Mean Test Variance](https://en.wikipedia.org/wiki/Variance) | [Mean Train Variance](https://en.wikipedia.org/wiki/Variance) | [R<sup>2</sup> Score](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) | time (s) | [cores](https://en.wikipedia.org/wiki/Multi-core_processor)
 | :---: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | **Unregularized (Original Features)** | 1.39022 | 0.75140 | 2.416220 | 0.130706 | -0.0287 | 0.636 | 1 |
 | **Regularized (Original Features)** | 1.37051 | 0.7478 | 2.3075 | 0.1256 | -0.0195 | 564.307 | 7 |
