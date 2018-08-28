@@ -112,13 +112,20 @@ def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="model.pkl"):
         pickle.dump(data, f)
 
 
+def load_data(model_file="model.pkl"):
+    data = None
+    with open(model_file, "rb") as f:
+        data=pickle.load(f)
+    return (data['x train'], data['y train']), (data['x test'], data['y test'])
+
+
 if __name__ == "__main__":
     #plt.ylabel('S&P Price')
     #plt.xlabel('AAL Price')
     #plt.plot(data_sets[:,1], data_sets[:,-1], 'r*')
     #plt.tight_layout()
     #plt.show()
-    (X_train, Y_train), (X_test, Y_test) = extract_from_csv()
+    (X_train, Y_train), (X_test, Y_test) = load_data()
     write_data_to_pkl(X_train, Y_train, X_test, Y_test)
     X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
     r = lm.LinearRegression()
