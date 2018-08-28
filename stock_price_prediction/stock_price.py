@@ -50,7 +50,7 @@ def pre_process_data(stock_data, sp_data):
     stock_data = stock_data.drop('date', axis=1)
     stock_data = stock_data[:-1]
     sp_data = sp_data[1:]
-    sp_data['Price'] = sp_data['price'].str.replace(",", "").astype(float)
+    sp_data['Price'] = sp_data['Price'].str.replace(",", "").astype(float)
     data_sets = np.hstack([stock_data.values, sp_data['Price'].values.reshape(stock_data.shape[0], 1)])
     data_sets = data_sets[::-1]
     return data_sets
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     stock_data = reduce(lambda left,right: pd.merge(left,right,on='date'), DFS)
     sp_data = pd.read_csv('stocks\\S&P 500 Historical Data.csv')
     data_sets = pre_process_data(stock_data, sp_data)
-    X_train, Y_train, X_test, Y_test = create_train_patches(data_sets)
+    (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_sets)
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
