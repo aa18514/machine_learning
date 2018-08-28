@@ -18,6 +18,7 @@ from sklearn.model_selection import GridSearchCV
 import sys
 sys.path.insert(0, '..')
 import machine_learning_utils
+import pickle
 
 DFS = list()
 
@@ -101,6 +102,16 @@ def extract_from_csv():
     return (X_train, Y_train), (X_test, Y_test)
 
 
+def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="model.pkl"):
+    data = {}
+    data['x train'] = X_train
+    data['y train'] = Y_train
+    data['x test'] = X_test
+    data['y test'] = Y_test
+    with open(model_file, "wb") as f:
+        pickle.dump(data, f)
+
+
 if __name__ == "__main__":
     #plt.ylabel('S&P Price')
     #plt.xlabel('AAL Price')
@@ -108,6 +119,7 @@ if __name__ == "__main__":
     #plt.tight_layout()
     #plt.show()
     (X_train, Y_train), (X_test, Y_test) = extract_from_csv()
+    write_data_to_pkl(X_train, Y_train, X_test, Y_test)
     X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
