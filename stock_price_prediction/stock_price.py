@@ -63,6 +63,11 @@ def create_train_test_patches(data_sets, alpha=0.85):
     Y_test = data_sets[n:][:,-1]
     return (X_train, Y_train), (X_test, Y_test)
 
+def svm_regressor(X_train, Y_train, X_test):
+    model = svm.SVR(C=100, gamma=0.01, epsilon=10)
+    Y_pred = s.fit(X_train, Y_train).predict(X_test)
+    return Y_pred
+
 if __name__ == "__main__":
     fileNames = os.listdir('stocks')
     headers = []
@@ -81,10 +86,8 @@ if __name__ == "__main__":
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
     h = d.RidgeCV(alphas=a, cv=None)
-    s = svm.SVR(C=100, gamma=0.01, epsilon=10)
     Y_pred = train_mlp_regressor(X_train, Y_train, X_test)
-    #Y_pred = s.fit(X_train, Y_train).predict(X_test)
-    #print(h.alpha_)
+    Y_pred = svm_regressor(X_train, Y_train, X_test)
     plt.ylabel('S&P price')
     plt.xlabel('time steps')
     plt.plot(Y_test, label='S&P actual stock price')
