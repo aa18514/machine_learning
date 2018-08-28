@@ -94,15 +94,20 @@ def data_acquisition():
     return stock_data, sp_data
 
 
-if __name__ == "__main__":
+def extract_from_csv():
     stock_data, sp_data = data_acquisition()
     data_sets = pre_process_data(stock_data, sp_data)
+    (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_sets)
+    return (X_train, Y_train), (X_test, Y_test)
+
+
+if __name__ == "__main__":
     #plt.ylabel('S&P Price')
     #plt.xlabel('AAL Price')
     #plt.plot(data_sets[:,1], data_sets[:,-1], 'r*')
     #plt.tight_layout()
     #plt.show()
-    (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_sets)
+    (X_train, Y_train), (X_test, Y_test) = extract_from_csv()
     X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
