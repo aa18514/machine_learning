@@ -47,14 +47,14 @@ def extract_data(header: str, idx)->str:
     data = data.fillna(0)
     DFS.append(data)
 
+
 def pre_process_data(stock_data, sp_data):
     stock_data = stock_data.drop('date', axis=1)
     stock_data = stock_data[:-1]
     sp_data = sp_data[1:]
     sp_data['Price'] = sp_data['Price'].str.replace(",", "").astype(float)
     data_sets = np.hstack([stock_data.values, sp_data['Price'].values.reshape(stock_data.shape[0], 1)])
-    data_sets = data_sets[::-1]
-    return data_sets
+    return data_sets[::-1]
 
 def create_train_test_patches(data_sets, alpha=0.85):
     n = int(np.floor(alpha * data_sets.shape[0]))
@@ -64,20 +64,22 @@ def create_train_test_patches(data_sets, alpha=0.85):
     Y_test = data_sets[n:][:,-1]
     return (X_train, Y_train), (X_test, Y_test)
 
+
 def svm_regressor(X_train, Y_train, X_test):
     parameters = {
-                'kernel': ('linear', 'rbf','poly'),
-                'C':[1.5, 10],
-                'gamma': [1e-7, 1e-4],
-                'epsilon':[0.1,0.2,0.5,0.3]
+                'kernel': ['linear'],
+                'C':[100, 500],
+                'gamma': [1e-8, 1e-9, 1e-10],
+                'epsilon':[10, 15]
             }
     svr = svm.SVR()
-    clf = GridSearchCV(svr, parameters)
+    clf = GridSearchCV(svr, parameters, n_jobs=6, verbose=10)
     Y_pred = clf.fit(X_train, Y_train).predict(X_test)
     print(clf.best_params_)
     return Y_pred
 
-if __name__ == "__main__":
+
+def data_acquisition():
     fileNames = os.listdir('stocks')
     headers = []
     dates = pd.read_csv('stocks\\AAPL_data.csv')
@@ -87,11 +89,21 @@ if __name__ == "__main__":
         if value != 'S&P 500 Historical Data.csv':
             headers.append(value[:value.find('_')+1] + 'open')
             extract_data(value[:value.find('_')+1], idx)
-    stock_data = reduce(lambda left,right: pd.merge(left,right,on='date'), DFS)
+    stock_data = reduce(lambda left, right: pd.merge(left, right, on='date'), DFS)
     sp_data = pd.read_csv('stocks\\S&P 500 Historical Data.csv')
+    return stock_data, sp_data
+
+
+if __name__ == "__main__":
+    stock_data, sp_data = data_acquisition()
     data_sets = pre_process_data(stock_data, sp_data)
+    #plt.ylabel('S&P Price')
+    #plt.xlabel('AAL Price')
+    #plt.plot(data_sets[:,1], data_sets[:,-1], 'r*')
+    #plt.tight_layout()
+    #plt.show()
     (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_sets)
-    X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
+    X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
     h = d.RidgeCV(alphas=a, cv=None)
