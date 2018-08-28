@@ -14,6 +14,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.layers import Dropout
 import sklearn.linear_model as d
+from sklearn.model_selection import GridSearchCV
 import sys
 sys.path.insert(0, '..')
 import machine_learning_utils
@@ -64,8 +65,16 @@ def create_train_test_patches(data_sets, alpha=0.85):
     return (X_train, Y_train), (X_test, Y_test)
 
 def svm_regressor(X_train, Y_train, X_test):
-    model = svm.SVR(C=100, gamma=0.01, epsilon=10)
-    Y_pred = s.fit(X_train, Y_train).predict(X_test)
+    parameters = {
+                'kernel': ('linear', 'rbf','poly'),
+                'C':[1.5, 10],
+                'gamma': [1e-7, 1e-4],
+                'epsilon':[0.1,0.2,0.5,0.3]
+            }
+    svr = svm.SVR()
+    clf = GridSearchCV(svr, parameters)
+    Y_pred = clf.fit(X_train, Y_train).predict(X_test)
+    print(clf.best_params_)
     return Y_pred
 
 if __name__ == "__main__":
@@ -86,7 +95,7 @@ if __name__ == "__main__":
     r = lm.LinearRegression()
     a = np.logspace(-5, 3, 100)
     h = d.RidgeCV(alphas=a, cv=None)
-    Y_pred = train_mlp_regressor(X_train, Y_train, X_test)
+    #Y_pred = train_mlp_regressor(X_train, Y_train, X_test)
     Y_pred = svm_regressor(X_train, Y_train, X_test)
     plt.ylabel('S&P price')
     plt.xlabel('time steps')
