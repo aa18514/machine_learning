@@ -36,7 +36,7 @@ price = list()
 HEADERS = []
 
 def rmse_vec(pred_y, true_y):
-    return (K.mean((pred_y - true_y)**2
+    return K.mean((pred_y - true_y)**2)
 
 
 def percent_to_float(x: str)->str:
@@ -54,21 +54,21 @@ def create_model(neurons=1, layers=[40, 30, 25]):
     return model
 
 def train_mlp_regressor(X_train, Y_train, X_test):
-     callbacks = [EarlyStopping(monitor='mse', patience=8),
+    callbacks = [EarlyStopping(monitor='mse', patience=8),
                  ModelCheckpoint(filepath='best_model_1.h5', monitor='val_loss', save_best_only=True)]
-     #model = KerasRegressor(build_fn=create_model, epochs=100,verbose=70)
-     model = create_model()
-     #neurons = [5, 10, 15, 20, 25]
-     #param_grid = dict(neurons=neurons)
-     #grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=10, verbose=50, n_jobs=4)
-     model.fit(X_train, Y_train, epochs=900)
-     #grid_search = grid.fit(X_train, Y_train)
-     #print(grid_search.best_params_)
-     return model.predict(X_test), model.predict(X_train)
+    #model = KerasRegressor(build_fn=create_model, epochs=100,verbose=70)
+    model = create_model()
+    #neurons = [5, 10, 15, 20, 25]
+    #param_grid = dict(neurons=neurons)
+    #grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=10, verbose=50, n_jobs=4)
+    model.fit(X_train, Y_train, epochs=900)
+    #grid_search = grid.fit(X_train, Y_train)
+    #print(grid_search.best_params_)
+    return model.predict(X_test), model.predict(X_train)
 
 
 def extract_data(header: str, idx)->str:
-    data = pd.read_csv('stocks\\' + header + 'data.csv', index_col = False)
+    data = pd.read_csv('stocks\\' + header + 'data.csv', index_col=False)
     data = data.drop('Name', axis=1)
     #data['low'][1:] = np.log(data['low'].values[1:]/data['low'].values[:-1])
     #data['high'][1:] = np.log(data['high'].values[1:]/data['high'].values[:-1])
@@ -116,11 +116,11 @@ def create_train_test_patches(data_sets, keys, alpha=0.90):
 def svm_regressor(X_train, Y_train, X_test):
     Y_train = Y_train.reshape(len(Y_train), )
     parameters = {
-                'kernel': ['rbf', 'poly'],
-                'C':[100, 500],
-                'gamma': [1e-4],
-                'epsilon':[100, 150]
-            }
+        'kernel': ['rbf', 'poly'],
+        'C':[100, 500],
+        'gamma': [1e-4],
+        'epsilon':[100, 150]
+    }
     svr = svm.SVR()
     clf = GridSearchCV(svr, parameters, n_jobs=6, verbose=10)
     Y_pred = clf.fit(X_train, Y_train).predict(X_test)
@@ -173,7 +173,7 @@ def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="model.pkl"):
 def load_data(model_file="model.pkl"):
     data = None
     with open(model_file, "rb") as f:
-        data=pickle.load(f)
+        data = pickle.load(f)
     return (data['x train'], data['y train']), (data['x test'], data['y test'])
 
 
@@ -196,8 +196,8 @@ def correlate_daily_volume_price(n=10):
 def plot_data(ylabel, Y_pred, Y_true, label):
     plt.ylabel(ylabel)
     plt.xlabel('time steps')
-    plt.plot(Y_pred, label = label + ' prediction')
-    plt.plot(Y_true, label = label + ' value')
+    plt.plot(Y_pred, label=label + ' prediction')
+    plt.plot(Y_true, label=label + ' value')
     plt.legend()
     plt.tight_layout()
     plt.show()
