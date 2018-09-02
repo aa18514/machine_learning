@@ -27,6 +27,10 @@ def min_max(train_data: VectorFloat, test_data: VectorFloat)->(VectorFloat, Vect
     return train_data, test_data
 
 
+def log_transformation(data: VectorFloat)->VectorFloat:
+    return np.log(data[1:]/data[:-1])
+
+
 def pca_transformation(train_data: VectorFloat, test_data: VectorFloat, n_features: int)->\
         (VectorFloat, VectorFloat, int):
     pca = PCA(n_components=n_features)
