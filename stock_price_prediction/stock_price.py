@@ -41,7 +41,7 @@ def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
     res = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={data_range}&interval={data_interval}'.format(**locals()))
     data = res.json()
     stock_quote = None
-    if data['error'] = None:
+    if data['chart']['error'] is None:
         try:
             body = data['chart']['result'][0]
             dt = datetime.datetime
