@@ -1,12 +1,15 @@
 import csv
+import os
+import locale
+import sys
+import arrow
+import pickle
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.linear_model as lm
 import sklearn.svm as svm
 from functools import reduce
-import os
-import locale
 from locale import atof
 from sklearn import preprocessing
 from keras.models import Sequential
@@ -16,8 +19,6 @@ from keras.layers import Dropout
 import sklearn.linear_model as d
 from sklearn.model_selection import GridSearchCV
 from scipy.stats import pearsonr
-import sys
-import pickle
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputRegressor
@@ -26,14 +27,39 @@ from keras.wrappers.scikit_learn import KerasRegressor
 import keras.backend as K
 from sklearn.metrics import r2_score
 from scipy import signal
-import sys
 sys.path.insert(0, '..')
 import machine_learning_utils
+import datetime
 
 DFS = list()
+INTRA_DAY_DATA = list()
 volumes = list()
 price = list()
 HEADERS = []
+
+import re
+from io import StringIO
+import requests
+import pandas as pd
+from pandas_datareader import data as pdr
+import fix_yahoo_finance as yf
+
+
+def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
+    res = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={data_range}&interval={data_interval}'.format(**locals()))
+    data = res.json()
+    df = None
+    try:
+        body = data['chart']['result'][0]
+        dt = datetime.datetime
+        dt = pd.Series(map(lambda x: arrow.get(x).to('EST').datetime.replace(tzinfo=None), body['timestamp']), name='dt')
+        df = pd.DataFrame(body['indicators']['quote'][0], index=dt)
+        dg = pd.DataFrame(body['timestamp'])
+        return df.loc[:, ('open', 'high', 'low', 'close', 'volume')]
+    except Exception as e:
+        print(e)
+        return None
+
 
 def rmse_vec(pred_y, true_y):
     return K.mean((pred_y - true_y)**2)
@@ -43,13 +69,13 @@ def percent_to_float(x: str)->str:
     return float(x.strip('%'))
 
 
-def create_model(neurons=1, layers=[40, 30, 25]):
+def create_model(neurons=1, layers=[40, 30, 25], learning_rate=0.000035, loss='mean_squared_error'):
     model = Sequential()
     for layer in layers:
         model.add(Dense(units=layer, activation='relu'))
     model.add(Dense(units=3))
-    model.compile(loss='mean_squared_error',
-                  optimizer=Adam(lr=0.000035),
+    model.compile(loss=loss,
+                  optimizer=Adam(lr=learning_rate),
                   metrics=['mse'])
     return model
 
@@ -70,10 +96,11 @@ def train_mlp_regressor(X_train, Y_train, X_test):
 def extract_data(header: str, idx)->str:
     data = pd.read_csv('stocks\\' + header + 'data.csv', index_col=False)
     data = data.drop('Name', axis=1)
-    #data['low'][1:] = np.log(data['low'].values[1:]/data['low'].values[:-1])
-    #data['high'][1:] = np.log(data['high'].values[1:]/data['high'].values[:-1])
-    #data['open'][1:] = np.log(data['open'].values[1:]/data['open'].values[:-1])
-    #data['close'][1:] = np.log(data['close'].values[1:]/data['close'].values[:-1])
+    func = machine_learning_utils.log_transformation
+    #data['low'][1:] = func(data['low'].values)
+    #data['high'][1:] = func(data['high'].values)
+    #data['open'][1:] = func(data['open'].values)
+    #data['close'][1:] = func(data['close'].values)
     #data = data[1:]
     data.date = pd.DatetimeIndex(data.date.values)
     data.index = data.date
@@ -139,7 +166,7 @@ def data_acquisition():
     for value in fileNames:
         if value != 'S&P 500 Historical Data.csv':
             print(value)
-            HEADERS.append(value[:value.find('_')+1] + 'open')
+            HEADERS.append(value[:value.find('_')])
             extract_data(value[:value.find('_')+1], idx)
     stock_data = reduce(lambda left, right: pd.merge(left, right, on='date'), DFS)
     sp_data = pd.read_csv('stocks\\S&P 500 Historical Data.csv')
@@ -203,11 +230,24 @@ def plot_data(ylabel, Y_pred, Y_true, label):
     plt.show()
 
 
+def scrape_intra_day_data(data_range='1d', granularity='1m'):
+    for h in HEADERS:
+        jpy5m = get_quote_data(h, data_range, granularity)
+        if jpy5m is not None:
+            jpy5m = jpy5m.fillna(method='pad')
+            INTRA_DAY_DATA.append(jpy5m)
+            print(jpy5m.shape)
+        else:
+            print("data for {} is unavailable".format(h))
+    return INTRA_DAY_DATA
+
+
 if __name__ == "__main__":
     (X_train, Y_train), (X_test, Y_test) = extract_from_csv()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
-    Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
     headers = ['low', 'high', 'open']
+    intra_day_data = scrape_intra_day_data()
+    Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
     lags = np.argmax(signal.correlate(Y_train_pred, Y_pred) - len(Y_pred))
     for i in range(len(headers)):
         plot_data(headers[i], Y_pred[:, i], Y_test[:, i], 'forecast S&P ' + headers[i])
