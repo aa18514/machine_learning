@@ -11,17 +11,12 @@ import sklearn.linear_model as lm
 import sklearn.svm as svm
 from functools import reduce
 from locale import atof
-from sklearn import preprocessing
-from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.layers import Dropout
 import sklearn.linear_model as d
 from sklearn.model_selection import GridSearchCV
 from scipy.stats import pearsonr
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.multioutput import MultiOutputRegressor
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.wrappers.scikit_learn import KerasRegressor
 import keras.backend as K
@@ -30,19 +25,15 @@ from scipy import signal
 sys.path.insert(0, '..')
 import machine_learning_utils
 import datetime
+import re
+from io import StringIO
+import requests
 
 DFS = list()
 INTRA_DAY_DATA = list()
 volumes = list()
 price = list()
-HEADERS = []
-
-import re
-from io import StringIO
-import requests
-import pandas as pd
-from pandas_datareader import data as pdr
-import fix_yahoo_finance as yf
+HEADERS = list()
 
 
 def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
@@ -121,7 +112,7 @@ def pre_process_data(stock_data, company_data, keys):
         data_sets = np.hstack([data_sets, company_data[key].values.reshape(stock_data.shape[0], 1)])
     data_sets = data_sets[::-1]
     #for i in range(1, len(keys) + 1):
-        #data_sets[:, (-1 * i)][1: ] = np.log(data_sets[:, (-1 * i)][1: ]/data_sets[:, (-1 * i)][: -1])
+        #data_sets[:, (-1 * i)][1: ] = machine_learning_utils.log_transformation(data_sets[:, (-1 * i)]
     return data_sets
 
 
@@ -231,12 +222,17 @@ def plot_data(ylabel, Y_pred, Y_true, label):
     plt.show()
 
 
-def scrape_intra_day_data(data_range='1d', granularity='1m'):
+def scrape_intra_day_data(data_range='730d', granularity='60m'):
     companies_unavailable = 0.0
+    data = get_quote_data(HEADERS[1], data_range, granularity)
+    idx = data.index.unique()
+    idx = pd.to_datetime(idx)
     for h in HEADERS:
         jpy5m = get_quote_data(h, data_range, granularity)
         if jpy5m is not None:
             jpy5m = jpy5m.fillna(method='pad')
+            jpy5m = jpy5m.reindex(idx, method='pad')
+            print(jpy5m.shape)
             INTRA_DAY_DATA.append(jpy5m)
         else:
             companies_unavailable = companies_unavailable + 1
@@ -246,10 +242,10 @@ def scrape_intra_day_data(data_range='1d', granularity='1m'):
 
 
 if __name__ == "__main__":
-    (X_train, Y_train), (X_test, Y_test) = extract_from_csv()
+    (X_train, Y_train), (X_test, Y_test), HEADERS = load_data()
+    intra_day_data = scrape_intra_day_data()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
     headers = ['low', 'high', 'open']
-    intra_day_data = scrape_intra_day_data()
     Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
     lags = np.argmax(signal.correlate(Y_train_pred, Y_pred) - len(Y_pred))
     for i in range(len(headers)):
