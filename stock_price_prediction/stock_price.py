@@ -193,6 +193,7 @@ def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="model.pkl"):
     data['y train'] = Y_train
     data['x test'] = X_test
     data['y test'] = Y_test
+    data['company listings'] = HEADERS
     with open(model_file, "wb") as f:
         pickle.dump(data, f)
 
@@ -201,7 +202,7 @@ def load_data(model_file="model.pkl"):
     data = None
     with open(model_file, "rb") as f:
         data = pickle.load(f)
-    return (data['x train'], data['y train']), (data['x test'], data['y test'])
+    return (data['x train'], data['y train']), (data['x test'], data['y test']), data['company listings']
 
 
 def random_forest_classifier(X_train, Y_train, X_test):
@@ -231,14 +232,16 @@ def plot_data(ylabel, Y_pred, Y_true, label):
 
 
 def scrape_intra_day_data(data_range='1d', granularity='1m'):
+    companies_unavailable = 0.0
     for h in HEADERS:
         jpy5m = get_quote_data(h, data_range, granularity)
         if jpy5m is not None:
             jpy5m = jpy5m.fillna(method='pad')
             INTRA_DAY_DATA.append(jpy5m)
-            print(jpy5m.shape)
         else:
+            companies_unavailable = companies_unavailable + 1
             print("data for {} is unavailable".format(h))
+    print("{} of companies are unavailable".format(100. * (companies_unavailable/len(HEADERS))))
     return INTRA_DAY_DATA
 
 
