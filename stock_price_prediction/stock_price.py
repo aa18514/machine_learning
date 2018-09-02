@@ -40,17 +40,20 @@ HEADERS = list()
 def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
     res = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={data_range}&interval={data_interval}'.format(**locals()))
     data = res.json()
-    df = None
-    try:
-        body = data['chart']['result'][0]
-        dt = datetime.datetime
-        dt = pd.Series(map(lambda x: arrow.get(x).to('EST').datetime.replace(tzinfo=None), body['timestamp']), name='dt')
-        df = pd.DataFrame(body['indicators']['quote'][0], index=dt)
-        dg = pd.DataFrame(body['timestamp'])
-        return df.loc[:, ('open', 'high', 'low', 'close', 'volume')]
-    except Exception as e:
-        print(e)
-        return None
+    stock_quote = None
+    if data['error'] = None:
+        try:
+            body = data['chart']['result'][0]
+            dt = datetime.datetime
+            dt = pd.Series(map(lambda x: arrow.get(x).to('EST').datetime.replace(tzinfo=None), body['timestamp']), name='dt')
+            df = pd.DataFrame(body['indicators']['quote'][0], index=dt)
+            dg = pd.DataFrame(body['timestamp'])
+            stock_quote =  df.loc[:, ('open', 'high', 'low', 'close', 'volume')]
+        except Exception as e:
+            print(e)
+    else:
+        print(data['error'])
+    return stock_quote
 
 
 def rmse_vec(pred_y, true_y):
@@ -180,12 +183,13 @@ def extract_from_csv(write_to_csv=True):
     return (X_train, Y_train), (X_test, Y_test)
 
 def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="model.pkl"):
-    data = {}
-    data['x train'] = X_train
-    data['y train'] = Y_train
-    data['x test'] = X_test
-    data['y test'] = Y_test
-    data['company listings'] = HEADERS
+    data = {
+            'x train' : x_train,
+            'y train' : y_train,
+            'x test' : x_test,
+            'y test' : y_test,
+            'company listings' : HEADERS
+            }
     with open(model_file, "wb") as f:
         pickle.dump(data, f)
 
@@ -223,28 +227,35 @@ def plot_data(ylabel, Y_pred, Y_true, label):
     plt.show()
 
 
-def scrape_intra_day_data(data_range='730d', granularity='60m'):
+def scrape_yahoo_intra_day_data(data_range='2y', granularity='60m', write_data_to_pkl=True):
+    betas = list()
     companies_unavailable = 0.0
-    data = get_quote_data(HEADERS[1], data_range, granularity)
+    data = get_quote_data('^GSPC', data_range, granularity)
     idx = data.index.unique()
     idx = pd.to_datetime(idx)
     for h in HEADERS:
-        jpy5m = get_quote_data(h, data_range, granularity)
-        if jpy5m is not None:
-            jpy5m = jpy5m.fillna(method='pad')
-            jpy5m = jpy5m.reindex(idx, method='pad')
-            print(jpy5m.shape)
-            INTRA_DAY_DATA.append(jpy5m)
+        company_quote = get_quote_data(h, data_range, granularity)
+        if company_quote is not None:
+            company_quote = company_quote.reindex(idx, method='pad')
+            company_quote = company_quote.fillna(method='pad')
+            print(company_quote.shape)
+            INTRA_DAY_DATA.append(company_quote)
         else:
             companies_unavailable = companies_unavailable + 1
             print("data for {} is unavailable".format(h))
     print("{} of companies are unavailable".format(100. * (companies_unavailable/len(HEADERS))))
+    if write_data_to_pkl is True:
+        data = {
+                'hourly data' : INTRA_DAY_DATA
+               }
+        with open("intra_day_data.pkl", "wb") as f:
+            pickle.dump(data, f)
     return INTRA_DAY_DATA
 
 
 if __name__ == "__main__":
     (X_train, Y_train), (X_test, Y_test), HEADERS = load_data()
-    intra_day_data = scrape_intra_day_data()
+    intra_day_data = scrape_yahoo_intra_day_data()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
     headers = ['low', 'high', 'open']
     Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
