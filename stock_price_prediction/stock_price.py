@@ -262,6 +262,9 @@ def load_intra_day_data(filename='intra_day_data'):
 if __name__ == "__main__":
     (X_train, Y_train), (X_test, Y_test), HEADERS = load_data()
     intra_day_data = load_intra_day_data()
+    for i in range(len(intra_day_data)):
+        intra_day_data[i].columns.values[1:] = HEADERS[i] + '_' +  intra_day_data[i].columns.values[1:]
+    print(intra_day_data)
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
     headers = ['low', 'high', 'open']
     Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
