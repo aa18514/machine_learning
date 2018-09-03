@@ -252,9 +252,16 @@ def scrape_yahoo_intra_day_data(data_range='730d', granularity='60m', write_data
     return INTRA_DAY_DATA
 
 
+def load_intra_day_data(filename='intra_day_data'):
+    data_set = None
+    with open(filename + '.pkl', "rb") as f:
+        data_set = pickle.load(f)
+    return data_set['hourly data']
+
+
 if __name__ == "__main__":
     (X_train, Y_train), (X_test, Y_test), HEADERS = load_data()
-    intra_day_data = scrape_yahoo_intra_day_data()
+    intra_day_data = load_intra_day_data()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
     headers = ['low', 'high', 'open']
     Y_pred, Y_train_pred = train_mlp_regressor(X_train, Y_train, X_test)
