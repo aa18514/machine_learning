@@ -4,6 +4,8 @@ import locale
 import sys
 import arrow
 import pickle
+import datetime
+import requests
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,10 +26,6 @@ from sklearn.metrics import r2_score
 from scipy import signal
 sys.path.insert(0, '..')
 import machine_learning_utils
-import datetime
-import re
-from io import StringIO
-import requests
 from keras.layers import Dense
 
 DFS = list()
@@ -37,7 +35,7 @@ price = list()
 HEADERS = list()
 
 
-def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
+def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m', timezone='EST'):
     res = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={data_range}&interval={data_interval}'.format(**locals()))
     data = res.json()
     stock_quote = None
@@ -45,14 +43,14 @@ def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m'):
         try:
             body = data['chart']['result'][0]
             dt = datetime.datetime
-            dt = pd.Series(map(lambda x: arrow.get(x).to('EST').datetime.replace(tzinfo=None), body['timestamp']), name='dt')
+            dt = pd.Series(map(lambda x: arrow.get(x).to(timezone).datetime.replace(tzinfo=None), body['timestamp']), name='dt')
             df = pd.DataFrame(body['indicators']['quote'][0], index=dt)
             dg = pd.DataFrame(body['timestamp'])
             stock_quote =  df.loc[:, ('open', 'high', 'low', 'close', 'volume')]
         except Exception as e:
             print(e)
     else:
-        print(data['error'])
+        print(data['chart']['error'])
     return stock_quote
 
 
@@ -123,15 +121,17 @@ def pre_process_data(stock_data, company_data, keys):
 def create_train_test_patches(data_sets, keys, alpha=0.90):
     n = int(np.floor(alpha * data_sets.shape[0]))
     X_train = data_sets[:n][:, :-4]
-    Y_train = np.hstack([data_sets[:n][:, -1].reshape(len(data_sets[:n][:, -1]), 1),
-                         data_sets[:n][:, -2].reshape(len(data_sets[:n][:, -1]), 1),
-                         data_sets[:n][:, -3].reshape(len(data_sets[:n][:, -1]), 1),
-                         data_sets[:n][:, -4].reshape(len(data_sets[:n][:, -1]), 1)])
+    for i in range(1, 4):
+        data_sets[:, -1*i] = data_sets[:, -1*i].reshape(len(data_sets[:, -1]), 1)
+    Y_train = np.hstack([data_sets[:n][:, -1],
+                         data_sets[:n][:, -2],
+                         data_sets[:n][:, -3],
+                         data_sets[:n][:, -4]])
     X_test = data_sets[n:][:, :-4]
-    Y_test = np.hstack([data_sets[n:][:, -1].reshape(len(data_sets[n:][:, -1]), 1),
-                        data_sets[n:][:, -2].reshape(len(data_sets[n:][:, -1]), 1),
-                        data_sets[n:][:, -3].reshape(len(data_sets[n:][:, -1]), 1),
-                        data_sets[n:][:, -4].reshape(len(data_sets[n:][:, -1]), 1)])
+    Y_test = np.hstack([data_sets[n:][:, -1],
+                        data_sets[n:][:, -2],
+                        data_sets[n:][:, -3],
+                        data_sets[n:][:, -4]])
     return (X_train, Y_train), (X_test, Y_test)
 
 
@@ -227,14 +227,13 @@ def plot_data(ylabel, Y_pred, Y_true, label):
     plt.show()
 
 
-def scrape_yahoo_intra_day_data(data_range='2y', granularity='60m', write_data_to_pkl=True):
-    betas = list()
+def scrape_yahoo_intra_day_data(data_range='730d', granularity='60m', write_data_to_pkl=True, filename='intra_day_data'):
     companies_unavailable = 0.0
     data = get_quote_data('^GSPC', data_range, granularity)
     idx = data.index.unique()
     idx = pd.to_datetime(idx)
-    for h in HEADERS:
-        company_quote = get_quote_data(h, data_range, granularity)
+    for company in HEADERS:
+        company_quote = get_quote_data(company, data_range, granularity)
         if company_quote is not None:
             company_quote = company_quote.reindex(idx, method='pad')
             company_quote = company_quote.fillna(method='pad')
@@ -248,7 +247,7 @@ def scrape_yahoo_intra_day_data(data_range='2y', granularity='60m', write_data_t
         data = {
                 'hourly data' : INTRA_DAY_DATA
                }
-        with open("intra_day_data.pkl", "wb") as f:
+        with open(filename + '.pkl', "wb") as f:
             pickle.dump(data, f)
     return INTRA_DAY_DATA
 
