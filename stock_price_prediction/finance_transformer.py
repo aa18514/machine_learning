@@ -31,11 +31,11 @@ class optimizer:
     
     def compute_rsi(self, company_index, span=14):
         delta = self._stock_data[company_index]['close'].diff()[1:]
-        up, down = delta.copy(), delta.copy()
-        up[up < 0] = 0
-        down[down > 0] = 0
-        roll_up = pd.DataFrame.ewm(up, span=span)
-        roll_down = pd.DataFrame.ewm(down.abs(), span=span)
+        up_movement, down_movement = delta.copy(), delta.copy()
+        up_movement[up_movement < 0] = 0
+        down_movement[down_movement > 0] = 0
+        roll_up = pd.DataFrame.ewm(up_movement, span=span)
+        roll_down = pd.DataFrame.ewm(down_movement.abs(), span=span)
         relative_strength_index = roll_up.mean()/roll_down.mean()
         relative_strength_index = 100 - (100/(1.0 + relative_strength_index))
         self._stock_data[company_index]['rsi'][1:] = relative_strength_index
@@ -64,11 +64,13 @@ class optimizer:
 
     
     def drop_data(self, company_index, keys=['close', 'low', 'volume']):
+        """used to drop any of features from the dataset"""
         for key in keys:
             self._stock_data[company_index] = self._stock_data[company_index].drop(key, axis=1)
 
     
-    def compute_high_low(self, company_index): 
+    def compute_high_low(self, company_index):
+        """compute the difference between high and low closing indices of company with index company_index"""
         self._stock_data[company_index]['high'] = self._stock_data[company_index]['high'].values - self._stock_data[company_index]['low'].values
 
     
