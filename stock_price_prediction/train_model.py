@@ -1,7 +1,9 @@
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
 import sklearn.svm as svm
-
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
 
 def create_model(neurons=[30, 30, 30, 30, 1],
                  dropout=[0.10, 0.10, 0.10, 0.10, 0.00],
