@@ -7,13 +7,17 @@ The stock index of 'Apple Corporation' is considered for the analysis. Data is a
 
 ## Feature Engineering
 Technical analysis was used to create features using stock indices. These include the following:
-* Williams R
-* Relative Strength Index
-* 7-day Rolling Standard Deviation
-* Absolute Price Oscillator
-* Momentum
-* Commodity Channel Index
-* Money Flow Index
-* Average Directional Movement Index
+* [Williams R](https://www.investopedia.com/terms/w/williamsr.asp)
+* [Relative Strength Index](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/RSI)
+* [7-day Rolling Standard Deviation](http://jonisalonen.com/2014/efficient-and-accurate-rolling-standard-deviation/)
+* [Absolute Price Oscillator](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/apo)
+* [Momentum](https://en.wikipedia.org/wiki/Momentum_(finance))
+* [Commodity Channel Index](https://en.wikipedia.org/wiki/Commodity_channel_index)
+* [Money Flow Index](http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi)
+* [Average Directional Movement Index](https://en.wikipedia.org/wiki/Average_directional_movement_index)
 * High - Low
 * Close - Open
+
+In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of the suppliers of Apple <br>
+
+A feedforward neural network is used to train the model with a validation split of 0.33. <br>
