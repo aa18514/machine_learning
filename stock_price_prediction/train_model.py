@@ -31,19 +31,14 @@ def create_keras_classifier(neurons=[20, 20, 20, 20, 1],
     return model
 
 
-def plot_accuracy(history):
-    plt.xlabel('epochs')
-    plt.ylabel('acc')
-    plt.plot(history.history['acc'], label='train')
-    plt.plot(history.history['val_acc'], label='test')
-    plt.legend()
-    plt.show()
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.plot(history.history['loss'], label='train')
-    plt.plot(history.history['val_acc'], label='test')
-    plt.legend()
-    plt.show()
+def plot_accuracy(history, attributes=['acc', 'loss']):
+    for attr in attributes:
+        plt.xlabel('epochs')
+        plt.ylabel(attr)
+        plt.plot(history.history[attr], label='train')
+        plt.plot(history.history['val_' + attr], label='test')
+        plt.legend()
+        plt.show()
 
 
 def train_mlp_classifier(X_train, Y_train, X_test):
