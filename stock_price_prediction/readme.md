@@ -20,4 +20,8 @@ Technical analysis was used to create features using stock indices. These includ
 
 In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of the suppliers of Apple <br>
 
-A feedforward neural network is used to train the model with a validation split of 0.33. <br>
+A feedforward neural network is used to train the model with a validation split of 0.33. <br> It was found that the approach to predict raw stock prices as claimed by many articles and tutorials online is flawed, as this results only in a lagged version of the response. In order to counteract this, logarithmic returns are used instead of raw prices. <br>
+
+Another interesting observation here is the returns are normally distributed, due to which z-score was used to standardize the data. <br>
+
+After all of the features are engineered, the data is stored in pickle format, which allows other machine learning practictioners to train and test their models on feature engineered data-set <br>
