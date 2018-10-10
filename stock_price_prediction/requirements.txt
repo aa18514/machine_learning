@@ -1,0 +1,8 @@
+numpy
+matplotlib
+keras
+pandas
+scipy
+sklearn
+pickle
+requests
