@@ -18,7 +18,7 @@ Data is acquired on a daily basis for the last **7000** days and consists of ope
 
 ## Feature Engineering
 Technical analysis was used to create features using stock indices. These include the following:
-* [Williams R](https://www.investopedia.com/terms/w/williamsr.asp)
+* [Williams % R](https://www.investopedia.com/terms/w/williamsr.asp)
 * [Relative Strength Index](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/RSI)
 * [7-day Rolling Standard Deviation](http://jonisalonen.com/2014/efficient-and-accurate-rolling-standard-deviation/)
 * [Absolute Price Oscillator](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/apo)
@@ -26,6 +26,7 @@ Technical analysis was used to create features using stock indices. These includ
 * [Commodity Channel Index](https://en.wikipedia.org/wiki/Commodity_channel_index)
 * [Money Flow Index](http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi)
 * [Average Directional Movement Index](https://en.wikipedia.org/wiki/Average_directional_movement_index)
+* [2-day, 4-day and 16-day Simple Moving Average](https://www.investopedia.com/terms/s/sma.asp)
 * High - Low
 * Close - Open
 
