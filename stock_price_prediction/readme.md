@@ -13,6 +13,7 @@ Data is acquired on a daily basis for the last **7000** days and consists of ope
          <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/high_index.png", width="400" height="400" />
          <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/low_index.png", width="400" height="400" />
          <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/volume.png", width="400" height="400" />
+         <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/market_capitalization.png", width="400" height="400" />
 </div>
 
 ## Feature Engineering
