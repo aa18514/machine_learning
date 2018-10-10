@@ -2,9 +2,15 @@
 
 ## Description
 The purpose of this project is to determine whether using historical stock indices can be helpful to predict the current stock price or stock price direction movement. <br>
-The stock index of 'Apple Corporation' is considered for the analysis. Data is acquired on a daily basis for the last 7000 days and consisted of the opening, closing, high, low indices and volume <br>
+The stock index of 'Apple Corporation' is considered for the analysis. <br>
 
+## Data Set
+Data is acquired on a daily basis for the last **7000** days and consists of opening, closing, high, low indices along with volume. The following diagram shows the indices accumulated over the last 7000 days. <br>
 
+<div>     
+         <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/opening_index.png", width="400" height="400" />     
+         <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/closing_index.png", width="400" height="400" /> 
+</div>
 ## Feature Engineering
 Technical analysis was used to create features using stock indices. These include the following:
 * [Williams R](https://www.investopedia.com/terms/w/williamsr.asp)
