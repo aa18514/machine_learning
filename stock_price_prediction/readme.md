@@ -30,7 +30,7 @@ Technical analysis was used to create features using stock indices. These includ
 * High - Low
 * Close - Open
 
-In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of the suppliers of Apple <br>
+In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of companies that constitute to the [suppliers](https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf) of Apple. At the minute these only include players such **3M**, **Amphenol**, **Broadcom**, **Corning** and **Diodes**. <br>
 
 ## Stratagies
 * A feedforward neural network is used to train the model, where the target is raw stock indices. Although metrics such as MSE and R2 Score are low, these are incorrect indicators. This approach is flawed. Upon zooming in the predicted response it was discovered that the predicted response is just the delayed version of the true response.
