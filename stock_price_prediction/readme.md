@@ -30,10 +30,17 @@ Technical analysis was used to create features using stock indices. These includ
 * High - Low
 * Close - Open
 
-In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of companies that constitute to the [suppliers](https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf) of Apple. At the minute these only include players such **3M**, **Amphenol**, **Broadcom**, **Corning** and **Diodes**. <br>
+In addition to past historical data of Apple, historical data of other companies listed in S&P 500 was also used. However, to prevent overfitting I only correlated the indices of Apple with the companies and used the 10 companies with the most positive correlation coefficients and the 10 companies with the most negative correlations. Furthermore, I also used the stock prices of companies that constitute to the [suppliers](https://www.apple.com/supplier-responsibility/pdf/Apple-Supplier-List.pdf) of Apple. At the minute these only include players such **3M**, **Amphenol**, **Broadcom**, **Corning** and **Diodes**G. <br>
 
 ## Stratagies
 * A feedforward neural network is used to train the model, where the target is raw stock indices. Although metrics such as MSE and R2 Score are low, these are incorrect indicators. This approach is flawed. Upon zooming in the predicted response it was discovered that the predicted response is just the delayed version of the true response.
 * In order to fallacy indicated above, the raw prices were transformed to daily returns. <br>. A validation split of **0.33** was used. It was also discovered that the returns are normally distributed with mean **10.763** and standard deviation **3.735**, due to which z-score was used to standardize the data. <br>
 
 After all of the features are engineered, the data is stored in pickle format, which allows other machine learning practictioners to train and test their models on feature engineered data-set <br>
+
+## Predicting returns
+* Keras Regressor was used to predict at the returns at timestep t + 1, i.e the the next timestep (hour or day). The following diagram shows the predicted and actual returns for the test data set.
+
+<div>
+    <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/predicted_returns.png", width="400" height="400" />
+</div>
