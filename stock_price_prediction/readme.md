@@ -41,6 +41,6 @@ After all of the features are engineered, the data is stored in pickle format, w
 ## Predicting returns
 * Keras Regressor was used to predict at the returns at timestep t + 1, i.e the the next timestep (hour or day). The following diagram shows the predicted and actual returns for the test data set.
 
-<div>
+<p align="center">
     <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/predicted_returns.png", width="400" height="400" />
-</div>
+</p>
