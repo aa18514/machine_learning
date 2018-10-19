@@ -1,6 +1,7 @@
 nn:
         loss: mse
-        metric: mse
+        metric: 
+                - mse
         optimizer: Adam
         layers:
                 - layer_1:
