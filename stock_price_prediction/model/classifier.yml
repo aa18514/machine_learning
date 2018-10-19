@@ -1,5 +1,7 @@
 nn:
         loss: binary_crossentropy
+        epochs: 350
+        validation_split: 0.35
         metric: 
                 - accuracy
         optimizer: Adam
