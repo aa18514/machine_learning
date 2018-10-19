@@ -1,0 +1,27 @@
+nn:
+        loss: binary_crossentropy
+        metric: 
+                - accuracy
+        optimizer: Adam
+        layers:
+                - layer_1:
+                        activation: linear
+                        dropout: 0.01
+                        nuerons: 35
+                - layer_2:
+                        activation: tanh
+                        dropout: 0.05
+                        nuerons: 35
+                - layer_3:
+                        activation: tanh
+                        dropout: 0.05
+                        nuerons: 30
+                - layer_4:
+                        activation: tanh
+                        dropout: 0.05
+                        nuerons: 30
+                - layer_5:
+                        activation: sigmoid
+                        dropout: 0.00
+                        nuerons: 1
+
