@@ -1,0 +1,26 @@
+nn:
+        loss: mse
+        metric: mse
+        optimizer: Adam
+        layers:
+                - layer_1:
+                        activation: relu
+                        dropout: 0.00
+                        nuerons: 30
+                - layer_2:
+                        activation: relu
+                        dropout: 0.00
+                        nuerons: 30
+                - layer_3:
+                        activation: relu
+                        dropout: 0.00
+                        nuerons: 30
+                - layer_4:
+                        activation: relu
+                        dropout: 0.00
+                        nuerons: 30
+                - layer_5:
+                        activation: linear
+                        dropout: 0.00
+                        nuerons: 1
+
