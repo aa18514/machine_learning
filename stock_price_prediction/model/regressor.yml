@@ -1,5 +1,7 @@
 nn:
         loss: mse
+        epochs: 350
+        validation_split: 0.35
         metric: 
                 - mse
         optimizer: Adam
