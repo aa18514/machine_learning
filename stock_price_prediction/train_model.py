@@ -7,11 +7,14 @@ from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import yaml
 
-def create_keras_model(model_file='model\\regressor.yml'):
+def load_model(model_file='model\\regressor.yml'):
     cfg = None
     with open(model_file, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-    nn = cfg['nn']
+        cfg = yaml.load(ymfile)
+    return cfg
+
+
+def create_keras_model(cfg):
     model = Sequential()
     for layer in nn['layers']:
         layer = list(layer.values())[0]
@@ -32,15 +35,17 @@ def plot_accuracy(history, attributes=['acc', 'loss']):
 
 
 def train_mlp_classifier(X_train, Y_train, X_test):
-    model = create_keras_model('model\\classifier.yml')
-    history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
+    cfg = load_model('model\\classifier.yml')['nn']
+    model = create_keras_model(cfg)
+    history = model.fit(X_train, Y_train, validation_split=int(cfg['validation_split']), epochs=int(cfg['epochs']))
     plot_accuracy(history)
     return model.predict_classes(X_test), model.predict_classes(X_train)
 
 
 def train_mlp_regressor(X_train, Y_train, X_test):
-    model = create_keras_model()
-    history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
+    cfg = load_model()['nn']
+    model = create_keras_model(cfg)
+    history = model.fit(X_train, Y_train, validation_split=int(cfg['validation_split']), epochs=int(cfg['epochs']))
     return model.predict(X_test), model.predict(X_train)
 
 
