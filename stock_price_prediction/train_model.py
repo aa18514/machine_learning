@@ -5,23 +5,25 @@ import sklearn.svm as svm
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
+import yaml
 
-
-def create_keras_regressor(neurons=[20, 20, 20, 20, 1],
-                 dropout=[0.01, 0.01, 0.01, 0.01, 0.00],
-                 activations=['relu', 'relu', 'relu', 'relu', 'linear'],
-                 loss='mse'):
+def create_keras_regressor(model_file='model\\regressor.yml'):
+    cfg = None
+    with open(model_file, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+    nn = cfg['nn']
     model = Sequential()
-    for i in range(len(dropout)):
-        model.add(Dense(units=neurons[i], activation=activations[i]))
-        model.add(Dropout(dropout[i]))
-    model.compile(loss=loss, optimizer='Adam', metrics=['accuracy'])
+    for layer in nn['layers']:
+        layer = list(layer.values())[0]
+        model.add(Dense(units=int(layer['nuerons']), activation=layer['activation']))
+        model.add(Dropout(int(layer['dropout'])))
+    model.compile(loss=nn['loss'], optimizer=nn['optimizer'], metrics=nn['metric'])
     return model
 
 
-def create_keras_classifier(neurons=[20, 20, 20, 20, 1],
-                 dropout=[0.01, 0.01, 0.01, 0.01, 0.00],
-                 activations=['relu', 'relu', 'relu', 'relu', 'sigmoid'],
+def create_keras_classifier(neurons=[35, 35, 35, 35, 35, 1],
+                 dropout=[0.01, 0.050, 0.050, 0.05, 0.05, 0.00],
+                 activations=['linear', 'tanh', 'tanh', 'tanh', 'tanh', 'sigmoid'],
                  loss='binary_crossentropy'):
     model = Sequential()
     for i in range(len(dropout)):
@@ -43,12 +45,16 @@ def plot_accuracy(history, attributes=['acc', 'loss']):
 
 def train_mlp_classifier(X_train, Y_train, X_test):
     model = create_keras_classifier()
-    history = model.fit(X_train, Y_train, validation_split=0.33, epochs=150)
+    history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
     plot_accuracy(history)
-    X_te = model.predict_proba(X_test)
-    X_te[X_te >= 0.50] = 1
-    X_te[X_te < 0.50] = 0
-    return X_te, model.predict_classes(X_train)
+    return model.predict_classes(X_test), model.predict_classes(X_train)
+
+
+def train_mlp_regressor(X_train, Y_train, X_test):
+    model = create_keras_regressor()
+    history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
+    #plot_accuracy(history, ['mse'])
+    return model.predict(X_test), model.predict(X_train)
 
 
 def svm_regressor(X_train, Y_train, X_test):
