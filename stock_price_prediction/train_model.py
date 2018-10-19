@@ -7,7 +7,7 @@ from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import yaml
 
-def create_keras_regressor(model_file='model\\regressor.yml'):
+def create_keras_model(model_file='model\\regressor.yml'):
     cfg = None
     with open(model_file, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
@@ -18,18 +18,6 @@ def create_keras_regressor(model_file='model\\regressor.yml'):
         model.add(Dense(units=int(layer['nuerons']), activation=layer['activation']))
         model.add(Dropout(int(layer['dropout'])))
     model.compile(loss=nn['loss'], optimizer=nn['optimizer'], metrics=nn['metric'])
-    return model
-
-
-def create_keras_classifier(neurons=[35, 35, 35, 35, 35, 1],
-                 dropout=[0.01, 0.050, 0.050, 0.05, 0.05, 0.00],
-                 activations=['linear', 'tanh', 'tanh', 'tanh', 'tanh', 'sigmoid'],
-                 loss='binary_crossentropy'):
-    model = Sequential()
-    for i in range(len(dropout)):
-        model.add(Dense(units=neurons[i], activation=activations[i]))
-        model.add(Dropout(dropout[i]))
-    model.compile(loss=loss, optimizer='Adam', metrics=['accuracy'])
     return model
 
 
@@ -44,16 +32,15 @@ def plot_accuracy(history, attributes=['acc', 'loss']):
 
 
 def train_mlp_classifier(X_train, Y_train, X_test):
-    model = create_keras_classifier()
+    model = create_keras_model('model\\classifier.yml')
     history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
     plot_accuracy(history)
     return model.predict_classes(X_test), model.predict_classes(X_train)
 
 
 def train_mlp_regressor(X_train, Y_train, X_test):
-    model = create_keras_regressor()
+    model = create_keras_model()
     history = model.fit(X_train, Y_train, validation_split=0.35, epochs=350)
-    #plot_accuracy(history, ['mse'])
     return model.predict(X_test), model.predict(X_train)
 
 
