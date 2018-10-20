@@ -1,28 +1,33 @@
 nn:
         loss: mse
         epochs: 350
-        validation_split: 0.35
+        validation_split: 0.00
+        learning_rate: 0.1
         metric: 
-                - mse
+                - mean_squared_error
         optimizer: Adam
         layers:
                 - layer_1:
                         activation: relu
-                        dropout: 0.00
-                        nuerons: 30
+                        dropout: 0.01
+                        nuerons: 40
                 - layer_2:
                         activation: relu
-                        dropout: 0.00
-                        nuerons: 30
+                        dropout: 0.01
+                        nuerons: 40
                 - layer_3:
                         activation: relu
-                        dropout: 0.00
-                        nuerons: 30
+                        dropout: 0.01
+                        nuerons: 40
                 - layer_4:
                         activation: relu
-                        dropout: 0.00
-                        nuerons: 30
+                        dropout: 0.01
+                        nuerons: 40
                 - layer_5:
+                        activation: relu
+                        dropout: 0.01
+                        nuerons: 40
+                - layer_6:
                         activation: linear
                         dropout: 0.00
                         nuerons: 1
