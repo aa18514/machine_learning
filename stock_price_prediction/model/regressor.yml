@@ -2,7 +2,7 @@ nn:
         loss: mse
         epochs: 350
         validation_split: 0.00
-        learning_rate: 0.1
+        learning_rate: 0.02
         metric: 
                 - mean_squared_error
         optimizer: Adam
@@ -11,6 +11,7 @@ nn:
                         activation: relu
                         dropout: 0.01
                         nuerons: 40
+                - BatchNormalization
                 - layer_2:
                         activation: relu
                         dropout: 0.01
@@ -19,10 +20,12 @@ nn:
                         activation: relu
                         dropout: 0.01
                         nuerons: 40
+                - BatchNormalization
                 - layer_4:
                         activation: relu
                         dropout: 0.01
                         nuerons: 40
+                - BatchNormalization
                 - layer_5:
                         activation: relu
                         dropout: 0.01
