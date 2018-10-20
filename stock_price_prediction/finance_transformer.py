@@ -2,7 +2,8 @@ from functools import reduce
 import numpy as np
 from pandas import Series
 import pandas as pd
-
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
 
 class optimizer:
     """a class that can calculate the technical indicators given the stock indices
@@ -19,23 +20,30 @@ class optimizer:
                         Series(np.random.randn(len(self._stock_data[i]['open'].values)), index=self._stock_data[i].index)
 
     
-    def compute_williams_r(self, company_index, pad_value=0):
+    def compute_williams_r(self, company_index, pad_value=0, period=14):
         c = 0
         company = self._stock_data[company_index]
         for index, row in self._stock_data[company_index].iterrows():
-            if c > 14:
-                self._stock_data[company_index].set_value(index, 'williams_r', ((max(company['high'][c - 14: c]) - row['close']) / (max(company['high'][c - 14: c]) - min(company['low'][c - 14 : c]))))
+            if c > period:
+                self._stock_data[company_index].set_value(index, 'williams_r', ((max(company['high'][c - period: c]) - row['close']) / (max(company['high'][c - period: c]) - min(company['low'][c - period : c]))))
             else: 
                 self._stock_data[company_index].set_value(index, 'williams_r', pad_value)
             c = c + 1
 
+
     def compute_trix(self, company_index, span=15):
-        ewm = pd.DataFrame.ewm(self._stock_data[company_index]['close'], span, adjusted=True)
+        ewm = pd.DataFrame.ewm(self._stock_data[company_index]['close'], span)
         ewm = pd.DataFrame.ewm(ewm.mean(), span)
         ewm = pd.DataFrame.ewm(ewm.mean(), span)
         ewm = ewm.mean()
         ewm = ((ewm.values[1:] - ewm.values[:-1])/((10**-16) + ewm.values[:-1]))
         self._stock_data[company_index]['trix'][1:] = ewm
+
+
+    def calculate_hodrick_prescott(self, company_index):
+        cycle, trend = sm.tsa.filters.hpfilter(self._stock_data[company_index]['close'].values, 1600 * (480**4))
+        self._stock_data[company_index]['cycle'] = cycle
+        self._stock_data[company_index]['trend'] = trend
 
 
     def compute_rsi(self, company_index, span=14):
