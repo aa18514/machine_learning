@@ -1,6 +1,8 @@
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
+from keras.optimizers import Adam
+from keras.layers import BatchNormalization
 import sklearn.svm as svm
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
@@ -10,18 +12,24 @@ import yaml
 def load_model(model_file='model\\regressor.yml'):
     cfg = None
     with open(model_file, 'r') as ymlfile:
-        cfg = yaml.load(ymfile)
+        cfg = yaml.load(ymlfile)
     return cfg
 
 
-def create_keras_model(cfg):
+def create_keras_model(nn):
     model = Sequential()
     for layer in nn['layers']:
-        layer = list(layer.values())[0]
-        model.add(Dense(units=int(layer['nuerons']), activation=layer['activation']))
-        model.add(Dropout(int(layer['dropout'])))
-    model.compile(loss=nn['loss'], optimizer=nn['optimizer'], metrics=nn['metric'])
-    return model
+        for key, value in layer.items():
+            if key == 'BatchNormalization':
+                model.add(BatchNormalization())
+            else:
+                model.add(Dense(units=int(value['nuerons']), activation=value['activation']))
+                model.add(Dropout(int(value['dropout'])))
+    if nn['optimizer'] == 'Adam':
+        adam_optimizer = Adam(lr=nn['learning_rate'])
+        model.compile(loss=nn['loss'], optimizer=nn['optimizer'], metrics=nn['metric'])
+        return model
+    return None
 
 
 def plot_accuracy(history, attributes=['acc', 'loss']):
@@ -37,7 +45,7 @@ def plot_accuracy(history, attributes=['acc', 'loss']):
 def train_mlp_classifier(X_train, Y_train, X_test):
     cfg = load_model('model\\classifier.yml')['nn']
     model = create_keras_model(cfg)
-    history = model.fit(X_train, Y_train, validation_split=int(cfg['validation_split']), epochs=int(cfg['epochs']))
+    history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
     plot_accuracy(history)
     return model.predict_classes(X_test), model.predict_classes(X_train)
 
@@ -45,7 +53,7 @@ def train_mlp_classifier(X_train, Y_train, X_test):
 def train_mlp_regressor(X_train, Y_train, X_test):
     cfg = load_model()['nn']
     model = create_keras_model(cfg)
-    history = model.fit(X_train, Y_train, validation_split=int(cfg['validation_split']), epochs=int(cfg['epochs']))
+    history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
     return model.predict(X_test), model.predict(X_train)
 
 
