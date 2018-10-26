@@ -8,6 +8,7 @@ from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import yaml
+import numpy as np
 
 def load_model(model_file='model\\regressor.yml'):
     cfg = None
@@ -19,10 +20,10 @@ def load_model(model_file='model\\regressor.yml'):
 def create_keras_model(nn):
     model = Sequential()
     for layer in nn['layers']:
-        for key, value in layer.items():
-            if key == 'BatchNormalization':
-                model.add(BatchNormalization())
-            else:
+        if layer == 'BatchNormalization':
+            model.add(BatchNormalization())
+        else:
+            for key, value in layer.items():
                 model.add(Dense(units=int(value['nuerons']), activation=value['activation']))
                 model.add(Dropout(int(value['dropout'])))
     if nn['optimizer'] == 'Adam':
@@ -55,6 +56,24 @@ def train_mlp_regressor(X_train, Y_train, X_test):
     model = create_keras_model(cfg)
     history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
     return model.predict(X_test), model.predict(X_train)
+
+def rolling_mlp_regressor(X_train, Y_train, X_test, Y_test):
+    cfg = load_model()['nn']
+    model = create_keras_model(cfg)
+    predictions = []
+    for i in range(len(X_test)):
+        history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
+        print(X_test[i])
+        prediction = model.predict(X_test)[i]
+        predictions.append(prediction)
+        print(X_train.shape)
+        X_train = list(X_train)
+        Y_train = list(Y_train)
+        X_train.append(X_test[i])
+        Y_train.append(Y_test[i])
+        X_train = np.array(X_train)
+        Y_train = np.array(Y_train)
+    return np.array(predictions), model.predict(X_train)
 
 
 def svm_regressor(X_train, Y_train, X_test):
