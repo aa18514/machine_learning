@@ -27,6 +27,7 @@ Technical analysis was used to create features using stock indices. These includ
 * [Money Flow Index](http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi)
 * [Average Directional Movement Index](https://en.wikipedia.org/wiki/Average_directional_movement_index)
 * [2-day, 4-day and 16-day Simple Moving Average](https://www.investopedia.com/terms/s/sma.asp)
+* [Hodrick Prescott Filter](https://en.wikipedia.org/wiki/Hodrick%E2%80%93Prescott_filter)
 * High - Low
 * Close - Open
 
