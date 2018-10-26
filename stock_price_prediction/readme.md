@@ -28,6 +28,7 @@ Technical analysis was used to create features using stock indices. These includ
 * [Average Directional Movement Index](https://en.wikipedia.org/wiki/Average_directional_movement_index)
 * [2-day, 4-day and 16-day Simple Moving Average](https://www.investopedia.com/terms/s/sma.asp)
 * [Hodrick Prescott Filter](https://en.wikipedia.org/wiki/Hodrick%E2%80%93Prescott_filter)
+* [Bollinger Bands](https://en.wikipedia.org/wiki/Bollinger_Bands)
 * High - Low
 * Close - Open
 
