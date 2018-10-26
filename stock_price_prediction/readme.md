@@ -4,6 +4,9 @@
 The purpose of this project is to determine whether using historical stock indices can be helpful to predict the current stock price or stock price direction movement. <br>
 The stock index of 'Apple Corporation' is considered for the analysis. <br>
 
+## Creating config file
+In order to specify the neural network architecture, [yaml](https://en.wikipedia.org/wiki/YAML) is used. The user can specify parameters such as the number of layers, the number of neurons in each layer, activation function between layers, learning rate, batch normalization, epochs and batch size. For the time being only feedforward neural networks are supported. The yaml file exists under the models directory.
+
 ## Data Set
 Data is acquired on a daily basis for the last **7000** days and consists of opening, closing, high, low indices along with volume. The following diagram shows the indices accumulated over the last 7000 days. <br>
 
