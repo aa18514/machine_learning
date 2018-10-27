@@ -2,10 +2,8 @@ import csv
 import os
 import locale
 import sys
-import arrow
 import pickle
 import datetime
-import requests
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,36 +23,14 @@ import machine_learning_utils
 from finance_transformer import optimizer
 from matplotlib.axes import Axes
 import train_model
+from data_acquisition import get_quote_data
+
 
 DFS = list()
 INTRA_DAY_DATA = list()
 volumes = list()
 price = list()
 HEADERS = list()
-
-
-def get_quote_data(symbol='iwm', data_range='100d', data_interval='1m', timezone='EST'):
-    print(symbol)
-    res = requests.get('https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={data_range}&interval={data_interval}'.format(**locals()))
-    data = res.json()
-    stock_quote = None
-    if data['chart']['error'] is None:
-        try:
-            body = data['chart']['result'][0]
-            dt = datetime.datetime
-            dt = pd.Series(map(lambda x: arrow.get(x).to(timezone).datetime.replace(tzinfo=None), body['timestamp']), name='dt')
-            df = pd.DataFrame(body['indicators']['quote'][0], index=dt)
-            dg = pd.DataFrame(body['timestamp'])
-            stock_quote =  df.loc[:, ('open', 'high', 'low', 'close', 'volume')]
-        except Exception as e:
-            print(e)
-    else:
-        print(data['chart']['error'])
-    return stock_quote
-
-
-def rmse_vec(pred_y, true_y):
-    return K.mean((pred_y - true_y)**2)
 
 
 def percent_to_float(x: str)->str:
@@ -93,7 +69,7 @@ def pre_process_data(stock_data, company_data, keys):
     return data_sets
 
 
-def create_train_test_patches(data_sets, no, alpha=0.85):
+def create_train_test_patches(data_sets, no, alpha=0.95):
     n = int(np.floor(alpha * data_sets.shape[0]))
     X_train = data_sets[:n][:, :(-1*no)]
     Y_train = []
@@ -259,7 +235,7 @@ def pre_process_hourly_data(intra_day_data, apple_stock, predict_direction=False
     stocks = finance_optimizer.merge()
     stocks = stocks[3:-1]
     print(sp_data)
-    sp_data = sp_data[6:]
+    sp_data = sp_data[3:]
     print(sp_data)
     print(len(stocks.values))
     stocks = stocks.fillna(0)
@@ -354,9 +330,9 @@ def feature_engineering(appl_stock, intra_day_data, HEADERS):
         companies.append(company)
     companies.append(intra_day_data[1])
     suppliers = add_suppliers(companies)
-    for company in suppliers:
-        companies.append(company)
-    data_set = pre_process_hourly_data(companies, appl_stock['low'])
+    #for company in suppliers:
+    #    companies.append(company)
+    data_set = pre_process_hourly_data(companies, appl_stock['close'])
     print(data_set)
     return data_set
 
@@ -377,39 +353,40 @@ if __name__ == "__main__":
     #write_data_to_pkl(X_train, Y_train, X_test, Y_test)
     Y_test = Y_test.flatten()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
-    Y_pred, Y_train_pred = train_model.train_mlp_regressor(X_train, Y_train, X_test, Y_test)
+    n = int(np.floor(0.95 * (data_set.shape[0])))
+    test_data = appl_stock['close'].values[n:]
+    test_data = test_data[3:]
+    Y_pred, Y_train_pred = train_model.rolling_mlp_regressor(X_train, Y_train, X_test, Y_test, test_data)
     Y_pred = (Y_pred.flatten())
     Y_train_pred = (Y_train_pred.flatten())
-    Y_train = (Y_train)
-    Y_test = (Y_test)
     #visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
-    
-    print(np.sqrt(np.mean((Y_train_pred - Y_train)**2)))
-    print(np.sqrt(np.mean((Y_pred - Y_test)**2)))
-    print(np.mean(np.abs(100*(Y_pred - Y_test)/Y_test)))
+    #print(np.sqrt(np.mean((Y_train_pred - Y_train)**2)))
+    #print(np.sqrt(np.mean((Y_pred - Y_test)**2)))
+    #print(np.mean(np.abs(100*(Y_pred - Y_test)/Y_test)))
     #plt.plot(Y_train_pred, label='predicted AAPL values in past')
     #plt.plot(Y_train, label='true AAPL values in past')
+    """
     Y_pred = np.append(Y_train_pred[-1], Y_pred)
     Y_test = np.append(Y_train[-1], Y_test)
-    plt.title('Train Data')
-    plt.xlabel('hours elapsed')
-    plt.ylabel('stock price index')
-    plt.plot(Y_train_pred, label='predicted share price for AAPL')
-    plt.plot(Y_train, label='true share price for AAPL')
-    plt.legend()
-    plt.show()
-    plt.title('Test Data')
-    plt.xlabel('hours elapsed')
-    plt.ylabel('stock price index')
-    plt.plot(np.arange(len(Y_train), len(Y_train) + len(Y_pred), 1), Y_pred, label='predicted share indices for AAPL')
-    plt.plot(np.arange(len(Y_train), len(Y_train) + len(Y_pred), 1), Y_test, label='true share indices for AAPL')
-    #plt.plot(np.arange(0, len(Y_test.flatten()) - 60), Y_test.flatten()[60:], label='S&P values shifted by 60 hours')
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-    n = int(np.floor(0.85 * (data_set.shape[0])))
+    titles = ['Train Data', 'Test Data']
+    xlabels = ['hours elapsed', 'hours elapsed']
+    ylabel = ['stock_price_index', 'stock price index']
+    action = [[Y_train_pred, Y_train], [Y_pred, Y_test]]
+    label = [['predicted share price for AAPL', 'true share price for AAPL'],
+    start_point = 0
+    end_point = 0
+    for i in range(len(xlabels)):
+        plt.xlabel(xlabels[i])
+        plt.ylabel(ylabel[i])
+        plt.title(titles[i])
+        end_point = end_point + len(action[i][0])
+        for j in range(len(action[i])):
+            plt.plot(np.arange(start_point, end_point, 1), action[i][j], label=labels[i][j])
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        start_point = start_point + len(action[i][0])
     test_data = appl_stock['low'].values[n:]
-    #test_data = test_data[:-1]
     plt.xlabel('hours elapsed')
     plt.ylabel('stock price index')
     plt.plot(test_data[5:] * Y_pred, label='predicted share indices for AAPL')
@@ -417,17 +394,13 @@ if __name__ == "__main__":
     plt.legend()
     plt.tight_layout()
     plt.show()
-    Y_pred[Y_pred < 1] = 0
-    Y_pred[Y_pred > 1] = 1
-    Y_test[Y_test < 1] = 0
-    Y_test[Y_test > 1] = 1
-    print(Y_pred)
-    print(Y_test)
-    print("this is life")
+    """
     neg_res = 0
     total_neg_res = 0
     pos_res = 0
     total_pos_res = 0
+    Y_test[Y_test < 1] = 0
+    Y_test[Y_test > 1] = 1
     for i in range(len(Y_test)): 
         if Y_test[i] == 1:
             total_pos_res = total_pos_res + 1
@@ -459,7 +432,3 @@ if __name__ == "__main__":
     corr = corr/np.lingalg.norm(corr)
     plt.plot(corr)
     plt.show()
-    #for i in range(len(headers)):
-    #    plot_data(headers[i], Y_pred[:, i], Y_test[:, i], 'forecast S&P ' + headers[i])
-    #    plot_data(headers[i], Y_train_pred[:, i], Y_train[:, i], 'S&P ' + headers[i])
-    #"""
