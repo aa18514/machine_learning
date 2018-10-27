@@ -31,6 +31,13 @@ class optimizer:
             c = c + 1
 
 
+    def compute_bb(self, company_index):
+        self._stock_data[company_index]['moving_average'] = self._stock_data[company_index]['close'].rolling(window=20).mean()
+        std = self._stock_data[company_index]['close'].rolling(window=20).std()
+        self._stock_data[company_index]['upper_band'] = self._stock_data[company_index]['moving_average'] + 2 * std
+        self._stock_data[company_index]['lower_band'] = self._stock_data[company_index]['moving_average'] - 2 * std
+
+
     def compute_trix(self, company_index, span=15):
         ewm = pd.DataFrame.ewm(self._stock_data[company_index]['close'], span)
         ewm = pd.DataFrame.ewm(ewm.mean(), span)
