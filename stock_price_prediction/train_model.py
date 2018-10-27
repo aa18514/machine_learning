@@ -57,10 +57,12 @@ def train_mlp_regressor(X_train, Y_train, X_test):
     history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
     return model.predict(X_test), model.predict(X_train)
 
-def rolling_mlp_regressor(X_train, Y_train, X_test, Y_test):
+import time
+def rolling_mlp_regressor(X_train, Y_train, X_test, Y_test, ori):
     cfg = load_model()['nn']
     model = create_keras_model(cfg)
     predictions = []
+    errors = []
     for i in range(len(X_test)):
         history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
         print(X_test[i])
@@ -73,7 +75,19 @@ def rolling_mlp_regressor(X_train, Y_train, X_test, Y_test):
         Y_train.append(Y_test[i])
         X_train = np.array(X_train)
         Y_train = np.array(Y_train)
-    return np.array(predictions), model.predict(X_train)
+        errors.append(np.abs(ori[i] * Y_test[i] - ori[i] * prediction))
+        print("mae {}".format(np.abs(ori[i] * Y_test[i] -  ori[i] * prediction)))
+        print("length of ori {}".format(len(ori)))
+        print("length of Y_test {}".format(len(Y_test)))
+        #time.sleep(1)
+    plt.ylabel('error in $')
+    plt.xlabel('days')
+    plt.plot(errors)
+    plt.show()
+    Y_pred = np.array(predictions)
+    Y_pred[Y_pred < 1] = 0
+    Y_pred[Y_pred > 1] = 1
+    return Y_pred, model.predict(X_train)
 
 
 def svm_regressor(X_train, Y_train, X_test):
