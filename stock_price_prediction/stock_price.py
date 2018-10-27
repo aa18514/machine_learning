@@ -10,12 +10,8 @@ import matplotlib.pyplot as plt
 import sklearn.linear_model as lm
 from functools import reduce
 from locale import atof
-from keras.layers import Dense
-from keras.optimizers import Adam
 import sklearn.linear_model as d
 from scipy.stats import pearsonr
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-import keras.backend as K
 from sklearn.metrics import r2_score
 from scipy import signal
 sys.path.insert(0, '..')
