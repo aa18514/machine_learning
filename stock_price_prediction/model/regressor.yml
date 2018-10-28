@@ -14,8 +14,12 @@ nn:
                 - hodrick_prescott
                 - trix
                 - relative_strength_index
-                - moving_average
-                - rolling_standard_deviation
+                - moving_average:
+                        window_1: 7
+                        window_2: 14
+                        window_3: 28
+                - rolling_standard_deviation:
+                        window_1: 7
                 - absolute_price_oscillator
         metric:
                 - mean_squared_error
