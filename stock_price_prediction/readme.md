@@ -12,6 +12,7 @@ In order to specify the neural network architecture, [yaml](https://en.wikipedia
 * preprocessing (including z-score and min-max normalization)
 * batch normalization
 * epochs
+* features to include
 * train test split
 * validation split
 For the time being only feedforward neural networks are supported. The yaml file exists under the models directory.
