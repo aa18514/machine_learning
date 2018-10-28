@@ -1,35 +1,47 @@
 nn:
         loss: mse
-        epochs: 350
+        epochs: 250
         validation_split: 0.00
-        learning_rate: 0.02
-        metric: 
+        learning_rate: 0.01
+        pre_process: z_score
+        train_test_split: 0.90
+        look_ahead_days: 1
+        features:
+                - bollinger_bands
+                - money_flow_index
+                - average_directional_movement_index
+                - momentum
+                - hodrick_prescott
+                - trix
+                - relative_strength_index
+                - moving_average
+                - rolling_standard_deviation
+                - absolute_price_oscillator
+        metric:
                 - mean_squared_error
+                - mean_absolute_error
         optimizer: Adam
         layers:
                 - layer_1:
                         activation: relu
                         dropout: 0.01
-                        nuerons: 40
-                - BatchNormalization
+                        nuerons: 30
                 - layer_2:
                         activation: relu
                         dropout: 0.01
-                        nuerons: 40
+                        nuerons: 30
                 - layer_3:
                         activation: relu
-                        dropout: 0.01
-                        nuerons: 40
-                - BatchNormalization
+                        dropout: 0.00
+                        nuerons: 30
                 - layer_4:
                         activation: relu
-                        dropout: 0.01
-                        nuerons: 40
-                - BatchNormalization
+                        dropout: 0.00
+                        nuerons: 30
                 - layer_5:
                         activation: relu
-                        dropout: 0.01
-                        nuerons: 40
+                        dropout: 0.00
+                        nuerons: 30
                 - layer_6:
                         activation: linear
                         dropout: 0.00
