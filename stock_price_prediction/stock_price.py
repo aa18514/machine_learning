@@ -65,7 +65,7 @@ def pre_process_data(stock_data, company_data, keys):
     return data_sets
 
 
-def create_train_test_patches(data_sets, no, alpha=0.95):
+def create_train_test_patches(data_sets, no, alpha=0.90):
     n = int(np.floor(alpha * data_sets.shape[0]))
     X_train = data_sets[:n][:, :(-1*no)]
     Y_train = []
@@ -203,9 +203,9 @@ def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'ST
     return suppliers
 
 
-def pre_process_hourly_data(intra_day_data, apple_stock, predict_direction=False):
+def pre_process_hourly_data(intra_day_data, apple_stock, predict_direction=False, look_ahead_days=3):
     apple_stock = apple_stock.fillna(0)
-    sp_data = (apple_stock.values[1:]/apple_stock.values[:-1])
+    sp_data = (apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days]) - 1
     if predict_direction: 
         sp_data[sp_data <= 0] = 0
         sp_data[sp_data > 0] = 1
@@ -229,13 +229,14 @@ def pre_process_hourly_data(intra_day_data, apple_stock, predict_direction=False
         finance_optimizer.compute_absolute_price_oscillator(i)
         finance_optimizer.drop_data(i, ['close', 'low', 'volume'])
     stocks = finance_optimizer.merge()
-    stocks = stocks[3:-1]
-    print(sp_data)
     sp_data = sp_data[3:]
+    stocks = stocks[3:-look_ahead_days]
     print(sp_data)
     print(len(stocks.values))
     stocks = stocks.fillna(0)
     data_set = np.hstack([stocks.values, sp_data.reshape(len(stocks.values), 1)])
+    print(data_set)
+    data_set = data_set[:,1:]
     return data_set
 
 
@@ -349,10 +350,10 @@ if __name__ == "__main__":
     #write_data_to_pkl(X_train, Y_train, X_test, Y_test)
     Y_test = Y_test.flatten()
     X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
-    n = int(np.floor(0.95 * (data_set.shape[0])))
+    n = int(np.floor(0.90 * (data_set.shape[0])))
     test_data = appl_stock['close'].values[n:]
     test_data = test_data[3:]
-    Y_pred, Y_train_pred = train_model.rolling_mlp_regressor(X_train, Y_train, X_test, Y_test, test_data)
+    Y_pred, Y_train_pred = train_model.train_mlp_regressor(X_train, Y_train, X_test)
     Y_pred = (Y_pred.flatten())
     Y_train_pred = (Y_train_pred.flatten())
     #visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
@@ -361,7 +362,7 @@ if __name__ == "__main__":
     #print(np.mean(np.abs(100*(Y_pred - Y_test)/Y_test)))
     #plt.plot(Y_train_pred, label='predicted AAPL values in past')
     #plt.plot(Y_train, label='true AAPL values in past')
-    """
+    
     Y_pred = np.append(Y_train_pred[-1], Y_pred)
     Y_test = np.append(Y_train[-1], Y_test)
     titles = ['Train Data', 'Test Data']
@@ -369,6 +370,8 @@ if __name__ == "__main__":
     ylabel = ['stock_price_index', 'stock price index']
     action = [[Y_train_pred, Y_train], [Y_pred, Y_test]]
     label = [['predicted share price for AAPL', 'true share price for AAPL'],
+             ['predicted share price for AAPL', 'true share price for AAPL']]
+    """
     start_point = 0
     end_point = 0
     for i in range(len(xlabels)):
@@ -377,7 +380,7 @@ if __name__ == "__main__":
         plt.title(titles[i])
         end_point = end_point + len(action[i][0])
         for j in range(len(action[i])):
-            plt.plot(np.arange(start_point, end_point, 1), action[i][j], label=labels[i][j])
+            plt.plot(np.arange(start_point, end_point, 1), action[i][j], label=label[i][j])
         plt.legend()
         plt.tight_layout()
         plt.show()
@@ -395,8 +398,8 @@ if __name__ == "__main__":
     total_neg_res = 0
     pos_res = 0
     total_pos_res = 0
-    Y_test[Y_test < 1] = 0
-    Y_test[Y_test > 1] = 1
+    Y_test[Y_test < 0] = 0
+    Y_test[Y_test > 0] = 1
     for i in range(len(Y_test)): 
         if Y_test[i] == 1:
             total_pos_res = total_pos_res + 1
