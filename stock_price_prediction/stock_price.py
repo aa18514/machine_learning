@@ -20,13 +20,20 @@ from finance_transformer import optimizer
 from matplotlib.axes import Axes
 import train_model
 from data_acquisition import get_quote_data
-
+import yaml
 
 DFS = list()
 INTRA_DAY_DATA = list()
 volumes = list()
 price = list()
 HEADERS = list()
+
+
+def load_model(model_file='model\\regressor.yml'):
+    cfg = None
+    with open(model_file, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+    return cfg
 
 
 def percent_to_float(x: str)->str:
@@ -76,7 +83,7 @@ def create_train_test_patches(data_sets, no, alpha=0.90):
     Y_train = np.hstack([Y_train])
     Y_train = data_sets[:n][:, -1]
     X_test = data_sets[n:][:, :(-1*no)]
-    Y_test = np.hstack([Y_test])
+    Y_test = np.hstack([Y_test]).flatten()
     return (X_train, Y_train), (X_test, Y_test)
 
 
@@ -203,30 +210,43 @@ def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'ST
     return suppliers
 
 
-def pre_process_hourly_data(intra_day_data, apple_stock, predict_direction=False, look_ahead_days=3):
+def pre_process_hourly_data(cfg, intra_day_data, apple_stock, predict_direction=False):
+    look_ahead_days = int(cfg['look_ahead_days'])
     apple_stock = apple_stock.fillna(0)
     sp_data = (apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days]) - 1
-    if predict_direction: 
+    if predict_direction:
         sp_data[sp_data <= 0] = 0
         sp_data[sp_data > 0] = 1
     finance_optimizer = optimizer(intra_day_data)
     for i in range(len(intra_day_data)):
-        finance_optimizer.compute_bb(i)
-        finance_optimizer.calculate_money_flow_index(i)
-        finance_optimizer.average_directional_movement_index(i)
-        finance_optimizer.momentum(i)
-        finance_optimizer.calculate_hodrick_prescott(i)
-        #finance_optimizer.compute_commodity_channel_index(i)
-        #finance_optimizer.compute_williams_r(i)
-        finance_optimizer.compute_trix(i)
         finance_optimizer.compute_high_low(i)
         finance_optimizer.compute_open_close(i)
-        finance_optimizer.compute_rsi(i)
-        finance_optimizer.compute_rolling_std(i)
-        finance_optimizer.calculate_moving_average(i, 7)
-        finance_optimizer.calculate_moving_average(i, 14)
-        finance_optimizer.calculate_moving_average(i, 28)
-        finance_optimizer.compute_absolute_price_oscillator(i)
+        for keys in cfg['features']:
+            if isinstance(keys, str):
+                if keys is'bollinger_bands':
+                    finance_optimizer.compute_bb(i)
+                if keys is 'money_flow_index':
+                    finance_optimizer.calculate_money_flow_index(i)
+                if keys is 'average_directional_movement_index':
+                    finance_optimizer.average_directional_movement_index(i)
+                if keys is 'momentum':
+                    finance_optimizer.momentum(i)
+                if keys is 'hodrick_prescott':
+                    finance_optimizer.calculate_hodrick_prescott(i)
+                if keys is 'trix':
+                     finance_optimizer.compute_trix(i)
+                if keys is 'relative_strength_index':
+                    finance_optimizer.compute_rsi(i)
+                if keys is 'absolute_price_oscillator':
+                    finance_optimizer.compute_absolute_price_oscillator(i)
+            elif type(keys) is dict:
+                for key, value in keys.items():
+                    if key == 'rolling_standard_deviation':
+                        for _, window_size in value.items():
+                            finance_optimizer.compute_rolling_std(i, int(window_size))
+                    elif key == 'moving_average':
+                        for _, window_size in value.items():
+                            finance_optimizer.calculate_moving_average(i, int(window_size))
         finance_optimizer.drop_data(i, ['close', 'low', 'volume'])
     stocks = finance_optimizer.merge()
     sp_data = sp_data[3:]
@@ -301,7 +321,7 @@ def visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test):
     plt.show()
 
 
-def feature_engineering(appl_stock, intra_day_data, HEADERS):
+def feature_engineering(cfg, appl_stock, intra_day_data, HEADERS):
     x_labels = ['days', 'days', 'days']
     y_labels =  ['closing minus opening index', 'high minus low index', 'volume', 'market cap']
     title = ['stock_index for AAPL'] * len(y_labels)
@@ -329,28 +349,38 @@ def feature_engineering(appl_stock, intra_day_data, HEADERS):
     suppliers = add_suppliers(companies)
     #for company in suppliers:
     #    companies.append(company)
-    data_set = pre_process_hourly_data(companies, appl_stock['close'])
+    data_set = pre_process_hourly_data(cfg, companies, appl_stock['close'])
     print(data_set)
     return data_set
 
 
+def pre_process_data(cfg, X_train, X_test):
+    """apply preprocessing to data based on the parameter in the config file"""
+    if cfg['pre_process'] == 'z_score':
+        X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
+    elif cfg['pre_process'] == 'min_max':
+        X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
+    return X_train, X_test
+
+
 if __name__ == "__main__":
+    cfg = load_model()['nn']
+    train_test_split = float(cfg['train_test_split'])
     data_acquisition()
     HEADERS = np.array(HEADERS)
     intra_day_data, data = load_intra_day_data()
-    #print(len(intra_day_data))
     #intra_day_data = add_suppliers(intra_day_data)
     appl_stock = intra_day_data[1].fillna(0)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
     machine_learning_utils.histogram_residuals((appl_stock['open'].values[1:]/appl_stock['open'].values[:-1]), ax1)
     plt.show()
-    data_set = feature_engineering(appl_stock, intra_day_data, HEADERS)
-    (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_set, 1)
-    print(X_train[0])
-    #write_data_to_pkl(X_train, Y_train, X_test, Y_test)
-    Y_test = Y_test.flatten()
-    X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
-    n = int(np.floor(0.90 * (data_set.shape[0])))
+    data_set = feature_engineering(cfg, appl_stock, intra_day_data, HEADERS)
+    print(train_test_split)
+    (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_set, 1, train_test_split)
+    print(X_train)
+    print(X_test)
+    X_train, X_test = pre_process_data(cfg, X_train, X_test)
+    n = int(np.floor(train_test_split * (data_set.shape[0])))
     test_data = appl_stock['close'].values[n:]
     test_data = test_data[3:]
     Y_pred, Y_train_pred = train_model.train_mlp_regressor(X_train, Y_train, X_test)
