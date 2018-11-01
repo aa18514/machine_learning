@@ -2,25 +2,25 @@ nn:
         loss: mse
         epochs: 250
         validation_split: 0.00
-        learning_rate: 0.01
+        learning_rate: 0.001
         pre_process: z_score
         train_test_split: 0.90
         look_ahead_days: 1
         features:
                 - bollinger_bands
-                - money_flow_index
-                - average_directional_movement_index
-                - momentum
-                - hodrick_prescott
+                  #- money_flow_index
+                  #- average_directional_movement_index
+                  #- momentum
+                  #- hodrick_prescott
                 - trix
-                - relative_strength_index
+                  #- relative_strength_index
                 - moving_average:
                         window_1: 7
                         window_2: 14
                         window_3: 28
                 - rolling_standard_deviation:
-                        window_1: 7
-                - absolute_price_oscillator
+                        window_1: 5
+                # - absolute_price_oscillator
         metric:
                 - mean_squared_error
                 - mean_absolute_error
@@ -36,18 +36,18 @@ nn:
                         nuerons: 30
                 - layer_3:
                         activation: relu
-                        dropout: 0.00
+                        dropout: 0.01
                         nuerons: 30
                 - layer_4:
                         activation: relu
-                        dropout: 0.00
+                        dropout: 0.01
                         nuerons: 30
                 - layer_5:
                         activation: relu
-                        dropout: 0.00
+                        dropout: 0.01
                         nuerons: 30
                 - layer_6:
                         activation: linear
-                        dropout: 0.00
+                        dropout: 0.01
                         nuerons: 1
 
