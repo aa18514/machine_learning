@@ -1,26 +1,27 @@
 nn:
+        scrape_yahoo_finance: yes
         loss: mse
         epochs: 250
         validation_split: 0.00
-        learning_rate: 0.001
-        pre_process: z_score
+        learning_rate: 0.0025
+        pre_process: min_max
         train_test_split: 0.90
         look_ahead_days: 1
         features:
                 - bollinger_bands
-                  #- money_flow_index
-                  #- average_directional_movement_index
-                  #- momentum
-                  #- hodrick_prescott
+                - money_flow_index
+                - average_directional_movement_index
+                - momentum
+                - hodrick_prescott
                 - trix
-                  #- relative_strength_index
+                - relative_strength_index
                 - moving_average:
                         window_1: 7
                         window_2: 14
-                        window_3: 28
+                        window_4: 90
                 - rolling_standard_deviation:
-                        window_1: 5
-                # - absolute_price_oscillator
+                        window_1: 7
+                - absolute_price_oscillator
         metric:
                 - mean_squared_error
                 - mean_absolute_error
@@ -30,6 +31,7 @@ nn:
                         activation: relu
                         dropout: 0.01
                         nuerons: 30
+                - BatchNormalization
                 - layer_2:
                         activation: relu
                         dropout: 0.01
