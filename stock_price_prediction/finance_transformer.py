@@ -66,7 +66,8 @@ class optimizer:
 
 
     def compute_rolling_std(self, company_index, span=7):
-       self._stock_data[company_index]['std_dev'] = self._stock_data[company_index]['close'].rolling(span).std()
+        print("success")
+        self._stock_data[company_index]['std_dev'] = self._stock_data[company_index]['close'].rolling(span).std()
 
 
     def calculate_moving_average(self, company_index, period=2):
@@ -82,7 +83,7 @@ class optimizer:
         self._stock_data[company_index][str(period) + '-val'] = moving_average
 
 
-    def compute_absolute_price_oscillator(self, company_index, slow='28-val', fast='7-val'):
+    def compute_absolute_price_oscillator(self, company_index, slow='90-val', fast='7-val'):
         company = self._stock_data[company_index]
         self._stock_data[company_index]['delta'] = np.array(company[fast].values) - np.array(company[slow].values)
         #self._stock_data[company_index]['volume'] = self._stock_data[company_index]['volume'] * self._stock_data[company_index]['close']
@@ -103,9 +104,34 @@ class optimizer:
 
 
 
-    def calculate_money_flow_index(self, company_index):
+    def calculate_money_flow_index(self, company_index, periods=14):
         typical_price = (self._stock_data[company_index]['high'].values + self._stock_data[company_index]['low'].values + self._stock_data[company_index]['close'].values)/3
-        self._stock_data[company_index]['mfi'] = typical_price * self._stock_data[company_index]['volume'].values
+        self._stock_data[company_index]['typical_price'] = typical_price
+        self._stock_data[company_index]['money_flow'] = typical_price * self._stock_data[company_index]['volume'].values
+        self._stock_data[company_index]['money_flow_positive'] = 0.0
+        self._stock_data[company_index]['money_flow_negative'] = 0.0
+        self._stock_data[company_index]['money_flow_index'] = 0.0
+        self._stock_data[company_index].fillna(0)
+        iter_index = 0
+        for index, row in self._stock_data[company_index].iterrows():
+            if iter_index > 0:
+                if row['typical_price'] < self._stock_data[company_index]['typical_price'].values[iter_index-1]:
+                    self._stock_data[company_index].set_value(index, 'money_flow_positive', row['money_flow'])
+                elif row['typical_price'] >= self._stock_data[company_index]['typical_price'].values[iter_index-1]:
+                    self._stock_data[company_index].set_value(index, 'money_flow_negative', row['money_flow'])
+            if iter_index >= periods:
+                positive_sum = self._stock_data[company_index]['money_flow_positive'][iter_index-periods:iter_index].sum()
+                negative_sum = self._stock_data[company_index]['money_flow_negative'][iter_index-periods:iter_index].sum()
+                if negative_sum == 0:
+                    negative_sum = 0.00001
+                m_r = positive_sum/negative_sum
+                mfi = 1 - (1/(1 + m_r))
+                self._stock_data[company_index].set_value(index, 'money_flow_index', mfi)
+            iter_index = iter_index + 1
+        self._stock_data[company_index] = self._stock_data[company_index].drop('money_flow_positive', axis=1)
+        self._stock_data[company_index] = self._stock_data[company_index].drop('money_flow_negative', axis=1)
+        self._stock_data[company_index] = self._stock_data[company_index].drop('typical_price', axis=1)
+        self._stock_data[company_index] = self._stock_data[company_index].drop('money_flow', axis=1)
 
     
     def average_directional_movement_index(self, company_index, n=4):
@@ -151,9 +177,8 @@ class optimizer:
         Sum = pd.DataFrame.ewm(PosDI + NegDI, span=7, min_periods=7)
         ADX = pd.Series((abs(PosDI - NegDI) / (Sum.mean())))
         ADX = ADX.fillna(0)
-        print(ADX)
         self._stock_data[company_index]['adx'] = ADX
-        #self._stock_data[company_index] = self._stock_data[company_index].dropna()
+
 
     def compute_high_low(self, company_index):
         """compute the difference between high and low closing indices of company with index company_index"""
