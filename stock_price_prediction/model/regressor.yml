@@ -7,6 +7,15 @@ nn:
         pre_process: min_max
         train_test_split: 0.90
         look_ahead_days: 1
+        suppliers:
+                - JBL
+                - MU
+                - QCOM
+                - DIOD
+                - STM
+                - TXN
+                - ADI
+                - GLUU
         features:
                 - bollinger_bands
                 - money_flow_index
