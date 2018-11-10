@@ -48,7 +48,7 @@ class optimizer:
 
 
     def calculate_hodrick_prescott(self, company_index):
-        cycle, trend = sm.tsa.filters.hpfilter(self._stock_data[company_index]['close'].values, 1600 * (480**4))
+        cycle, trend = sm.tsa.filters.hpfilter(self._stock_data[company_index]['close'].values, 1600 * (90**4))
         self._stock_data[company_index]['cycle'] = cycle
         self._stock_data[company_index]['trend'] = trend
 
@@ -83,7 +83,7 @@ class optimizer:
         self._stock_data[company_index][str(period) + '-val'] = moving_average
 
 
-    def compute_absolute_price_oscillator(self, company_index, slow='90-val', fast='7-val'):
+    def compute_absolute_price_oscillator(self, company_index, slow='40-val', fast='5-val'):
         company = self._stock_data[company_index]
         self._stock_data[company_index]['delta'] = np.array(company[fast].values) - np.array(company[slow].values)
         #self._stock_data[company_index]['volume'] = self._stock_data[company_index]['volume'] * self._stock_data[company_index]['close']
@@ -104,7 +104,7 @@ class optimizer:
 
 
 
-    def calculate_money_flow_index(self, company_index, periods=14):
+    def calculate_money_flow_index(self, company_index, periods=14, epsilon=0.00001):
         typical_price = (self._stock_data[company_index]['high'].values + self._stock_data[company_index]['low'].values + self._stock_data[company_index]['close'].values)/3
         self._stock_data[company_index]['typical_price'] = typical_price
         self._stock_data[company_index]['money_flow'] = typical_price * self._stock_data[company_index]['volume'].values
@@ -122,8 +122,7 @@ class optimizer:
             if iter_index >= periods:
                 positive_sum = self._stock_data[company_index]['money_flow_positive'][iter_index-periods:iter_index].sum()
                 negative_sum = self._stock_data[company_index]['money_flow_negative'][iter_index-periods:iter_index].sum()
-                if negative_sum == 0:
-                    negative_sum = 0.00001
+                negative_sum = negative_sum + epsilon
                 m_r = positive_sum/negative_sum
                 mfi = 1 - (1/(1 + m_r))
                 self._stock_data[company_index].set_value(index, 'money_flow_index', mfi)
