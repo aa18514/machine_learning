@@ -1,28 +1,58 @@
 nn:
+        scrape_yahoo_finance: yes
         loss: binary_crossentropy
-        epochs: 350
+        epochs: 300
         validation_split: 0.35
-        metric: 
-                - accuracy
+        learning_rate: 0.025
+        pre_process: z_score
+        train_test_split: 0.90
+        look_ahead_days: 1
+        suppliers:
+                - JBL
+                - MU
+                - QCOM
+                - DIOD
+                - STM
+                - TXN
+                - ADI
+                - GLUU
+        features:
+                - bollinger_bands
+                - money_flow_index
+                - average_directional_movement_index
+                - momentum
+                - hodrick_prescott
+                - trix
+                - relative_strength_index
+                - moving_average:
+                        window_1: 10
+                        window_2: 5
+                        window_4: 40
+                - rolling_standard_deviation:
+                        window_1: 7
+                - absolute_price_oscillator
+        metric:
+                - binary_crossentropy
+                - acc
         optimizer: Adam
         layers:
                 - layer_1:
-                        activation: linear
-                        dropout: 0.01
-                        nuerons: 35
-                - layer_2:
+                        type: feedforward
                         activation: tanh
-                        dropout: 0.05
-                        nuerons: 35
+                        dropout: 0.00
+                        nuerons: 20
                 - layer_3:
+                        type: feedforward
                         activation: tanh
-                        dropout: 0.05
-                        nuerons: 30
+                        dropout: 0.20
+                        nuerons: 20
                 - layer_4:
+                        type: feedforward
                         activation: tanh
-                        dropout: 0.05
-                        nuerons: 30
+                        dropout: 0.00
+                        nuerons: 20
                 - layer_5:
+                        type: feedforward
                         activation: sigmoid
                         dropout: 0.00
                         nuerons: 1
