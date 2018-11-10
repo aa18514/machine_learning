@@ -1,7 +1,7 @@
 nn:
         scrape_yahoo_finance: yes
         loss: mse
-        epochs: 250
+        epochs: 400
         validation_split: 0.00
         learning_rate: 0.0025
         pre_process: min_max
@@ -25,9 +25,9 @@ nn:
                 - trix
                 - relative_strength_index
                 - moving_average:
-                        window_1: 7
-                        window_2: 14
-                        window_4: 90
+                        window_1: 10
+                        window_2: 5
+                        window_4: 40
                 - rolling_standard_deviation:
                         window_1: 7
                 - absolute_price_oscillator
@@ -37,28 +37,23 @@ nn:
         optimizer: Adam
         layers:
                 - layer_1:
+                        type: feedforward
                         activation: relu
-                        dropout: 0.01
-                        nuerons: 30
-                - BatchNormalization
-                - layer_2:
-                        activation: relu
-                        dropout: 0.01
+                        dropout: 0.00
                         nuerons: 30
                 - layer_3:
+                        type: feedforward
                         activation: relu
-                        dropout: 0.01
+                        dropout: 0.20
                         nuerons: 30
                 - layer_4:
+                        type: feedforward
                         activation: relu
-                        dropout: 0.01
+                        dropout: 0.00
                         nuerons: 30
                 - layer_5:
-                        activation: relu
-                        dropout: 0.01
-                        nuerons: 30
-                - layer_6:
+                        type: feedforward
                         activation: linear
-                        dropout: 0.01
+                        dropout: 0.00
                         nuerons: 1
 
