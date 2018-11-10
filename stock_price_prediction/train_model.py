@@ -24,8 +24,9 @@ def create_keras_model(nn):
             model.add(BatchNormalization())
         else:
             for key, value in layer.items():
-                model.add(Dense(units=int(value['nuerons']), activation=value['activation']))
-                model.add(Dropout(int(value['dropout'])))
+                if value['type'] == 'feedforward':
+                    model.add(Dense(units=int(value['nuerons']), activation=value['activation']))
+                    model.add(Dropout(float(value['dropout'])))
     if nn['optimizer'] == 'Adam':
         adam_optimizer = Adam(lr=nn['learning_rate'])
         model.compile(loss=nn['loss'], optimizer=nn['optimizer'], metrics=nn['metric'])
@@ -55,7 +56,8 @@ def train_mlp_regressor(X_train, Y_train, X_test):
     cfg = load_model()['nn']
     model = create_keras_model(cfg)
     history = model.fit(X_train, Y_train, validation_split=float(cfg['validation_split']), epochs=int(cfg['epochs']))
-    return model.predict(X_test), model.predict(X_train)
+    predictions = model.predict(X_test)
+    return predictions, model.predict(X_train)
 
 import time
 def rolling_mlp_regressor(X_train, Y_train, X_test, Y_test, ori):
