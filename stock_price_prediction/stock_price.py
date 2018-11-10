@@ -20,6 +20,7 @@ from finance_transformer import optimizer
 from matplotlib.axes import Axes
 import train_model
 from data_acquisition import get_quote_data
+from typing import Dict
 import yaml
 
 DFS = list()
@@ -103,7 +104,7 @@ def data_acquisition():
     return stock_data[1: ], sp_data[1: ]
 
 
-def load_model(model_file='model\\regressor.yml'):
+def load_model(model_file='model\\classifier.yml'):
     cfg = None
     with open(model_file, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
@@ -125,11 +126,11 @@ def extract_from_csv(write_to_csv=True):
 
 def write_data_to_pkl(X_train, Y_train, X_test, Y_test, model_file="data_file.pkl"):
     data = {
-            'x train' : X_train,
-            'y train' : Y_train,
-            'x test' : X_test,
-            'y test' : Y_test,
-            'company listings' : HEADERS
+        'x train' : X_train,
+        'y train' : Y_train,
+        'x test' : X_test,
+        'y test' : Y_test,
+        'company listings' : HEADERS
             }
     with open(model_file, "wb") as f:
         pickle.dump(data, f)
@@ -179,14 +180,16 @@ def scrape_yahoo_intra_day_data(data_range='3000d', granularity='1d', write_data
             companies_unavailable = companies_unavailable + 1
             print("data for {} is unavailable".format(company))
     print("{} of companies are unavailable".format(100. * (companies_unavailable/len(HEADERS))))
+    companies = add_suppliers(INTRA_DAY_DATA)
+    for company in companies:
+        INTRA_DAY_DATA.append(company)
     if write_data_to_pkl is True:
         data_set = {
-                     'hourly companies data' : INTRA_DAY_DATA,
-                     's&p 500 data' : data
+                'hourly companies data' : INTRA_DAY_DATA,
+                's&p 500 data' : data
                    }
         with open(filename + '.pkl', "wb") as f:
             pickle.dump(data_set, f)
-    INTRA_DAY_DATA = add_suppliers(INTRA_DAY_DATA)        
     return INTRA_DAY_DATA, data
 
 
@@ -197,7 +200,7 @@ def load_intra_day_data(filename='intra_day_data'):
     return data_set['hourly companies data'], data_set['s&p 500 data']
 
 
-def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'STM', 'TXN', 'ADI'], range_days='3000d', interval='1d'):
+def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'STM', 'TXN', 'ADI', 'GLUU'], range_days='3000d', interval='1d'):
     suppliers = []
     data = get_quote_data('^GSPC', range_days, interval)
     idx = data.index.unique()
@@ -210,34 +213,39 @@ def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'ST
     return suppliers
 
 
-def pre_process_hourly_data(cfg, intra_day_data, apple_stock, predict_direction=False):
+def pre_process_hourly_data(cfg: Dict, 
+                            intra_day_data,
+                            apple_stock,
+                            predict_direction=True)->(Dict):
     look_ahead_days = int(cfg['look_ahead_days'])
     apple_stock = apple_stock.fillna(0)
-    sp_data = (apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days]) - 1
+    sp_data = (apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days])
     if predict_direction:
-        sp_data[sp_data <= 0] = 0
-        sp_data[sp_data > 0] = 1
+        sp_data[sp_data <= 1] = 0
+        sp_data[sp_data > 1] = 1
     finance_optimizer = optimizer(intra_day_data)
     for i in range(len(intra_day_data)):
         finance_optimizer.compute_high_low(i)
         finance_optimizer.compute_open_close(i)
         for keys in cfg['features']:
             if isinstance(keys, str):
-                if keys is'bollinger_bands':
+                print(keys == 'hodrick_prescott')
+                if keys == 'bollinger_bands':
                     finance_optimizer.compute_bb(i)
-                if keys is 'money_flow_index':
+                if keys == 'money_flow_index':
                     finance_optimizer.calculate_money_flow_index(i)
-                if keys is 'average_directional_movement_index':
+                if keys == 'average_directional_movement_index':
                     finance_optimizer.average_directional_movement_index(i)
-                if keys is 'momentum':
+                if keys == 'momentum':
                     finance_optimizer.momentum(i)
-                if keys is 'hodrick_prescott':
+                if keys == 'hodrick_prescott': 
+                    print('success')
                     finance_optimizer.calculate_hodrick_prescott(i)
-                if keys is 'trix':
+                if keys == 'trix':
                      finance_optimizer.compute_trix(i)
-                if keys is 'relative_strength_index':
+                if keys == 'relative_strength_index':
                     finance_optimizer.compute_rsi(i)
-                if keys is 'absolute_price_oscillator':
+                if keys == 'absolute_price_oscillator':
                     finance_optimizer.compute_absolute_price_oscillator(i)
             elif type(keys) is dict:
                 for key, value in keys.items():
@@ -256,12 +264,13 @@ def pre_process_hourly_data(cfg, intra_day_data, apple_stock, predict_direction=
     stocks = stocks.fillna(0)
     data_set = np.hstack([stocks.values, sp_data.reshape(len(stocks.values), 1)])
     print(data_set)
-    data_set = data_set[:,1:]
+    data_set = data_set[:, 1:]
     return data_set
 
 
 def calculate_company_betas(HEADERS, intra_day_data, aapl_stock, keys=['close', 'open', 'high', 'low']):
     coerr = []
+    assert(len(HEADERS) == len(intra_day_data))
     for i in range(len(HEADERS)):
         if HEADERS[i] == 'AAPL':
             pass
@@ -321,7 +330,7 @@ def visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test):
     plt.show()
 
 
-def feature_engineering(cfg, appl_stock, intra_day_data, HEADERS):
+def feature_engineering(cfg: Dict, appl_stock, intra_day_data, HEADERS)->Dict:
     x_labels = ['days', 'days', 'days']
     y_labels =  ['closing minus opening index', 'high minus low index', 'volume', 'market cap']
     title = ['stock_index for AAPL'] * len(y_labels)
@@ -333,28 +342,26 @@ def feature_engineering(cfg, appl_stock, intra_day_data, HEADERS):
         plt.plot(y_values[i])
         plt.tight_layout()
         plt.show()
-    coerr = calculate_company_betas(HEADERS, intra_day_data, appl_stock[1:])
-    pos_companies, c_top, h_top = get_top_n_correlated_companies(coerr, HEADERS, intra_day_data)
-    neg_companies, c_bottom, h_bottom = get_bottom_n_correlated_companies(coerr, HEADERS, intra_day_data)
+    coerr = calculate_company_betas(HEADERS, intra_day_data[:-8], appl_stock[1:])
+    pos_companies, c_top, h_top = get_top_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
+    neg_companies, c_bottom, h_bottom = get_bottom_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
     print(h_top)
     print(h_bottom)
     companies = []
     for company in pos_companies:
-        company = company.fillna(0)
         companies.append(company)
     for company in neg_companies:
-        company = company.fillna(0)
         companies.append(company)
     companies.append(intra_day_data[1])
-    suppliers = add_suppliers(companies)
-    #for company in suppliers:
-    #    companies.append(company)
+    for i in range(1, 8, 1):
+        companies.append(intra_day_data[-1 * i])
+    print(len(companies))
     data_set = pre_process_hourly_data(cfg, companies, appl_stock['close'])
     print(data_set)
     return data_set
 
 
-def pre_process_data(cfg, X_train, X_test):
+def pre_process_data(cfg: Dict, X_train, X_test)->Dict:
     """apply preprocessing to data based on the parameter in the config file"""
     if cfg['pre_process'] == 'z_score':
         X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
@@ -363,12 +370,23 @@ def pre_process_data(cfg, X_train, X_test):
     return X_train, X_test
 
 
+def load_data(cfg: Dict)->Dict:
+    intra_day_data = None
+    data = None
+    if cfg['scrape_yahoo_finance'] == True:
+        intra_day_data, data = scrape_yahoo_intra_day_data()
+    else:
+        intra_day_data, data = load_intra_day_data()
+    return intra_day_data, data
+
+
 if __name__ == "__main__":
     cfg = load_model()['nn']
     train_test_split = float(cfg['train_test_split'])
     data_acquisition()
     HEADERS = np.array(HEADERS)
-    intra_day_data, data = load_intra_day_data()
+    intra_day_data, data = load_data(cfg)
+    print("this is len of intra day data: {}".format(len(intra_day_data)))
     #intra_day_data = add_suppliers(intra_day_data)
     appl_stock = intra_day_data[1].fillna(0)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
@@ -383,16 +401,16 @@ if __name__ == "__main__":
     n = int(np.floor(train_test_split * (data_set.shape[0])))
     test_data = appl_stock['close'].values[n:]
     test_data = test_data[3:]
-    Y_pred, Y_train_pred = train_model.train_mlp_regressor(X_train, Y_train, X_test)
+    Y_pred, Y_train_pred = train_model.train_mlp_classifier(X_train, Y_train, X_test)
     Y_pred = (Y_pred.flatten())
     Y_train_pred = (Y_train_pred.flatten())
-    #visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
+    visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
     #print(np.sqrt(np.mean((Y_train_pred - Y_train)**2)))
     #print(np.sqrt(np.mean((Y_pred - Y_test)**2)))
     #print(np.mean(np.abs(100*(Y_pred - Y_test)/Y_test)))
     #plt.plot(Y_train_pred, label='predicted AAPL values in past')
     #plt.plot(Y_train, label='true AAPL values in past')
-    
+    """
     Y_pred = np.append(Y_train_pred[-1], Y_pred)
     Y_test = np.append(Y_train[-1], Y_test)
     titles = ['Train Data', 'Test Data']
@@ -401,7 +419,7 @@ if __name__ == "__main__":
     action = [[Y_train_pred, Y_train], [Y_pred, Y_test]]
     label = [['predicted share price for AAPL', 'true share price for AAPL'],
              ['predicted share price for AAPL', 'true share price for AAPL']]
-    """
+    
     start_point = 0
     end_point = 0
     for i in range(len(xlabels)):
@@ -418,18 +436,20 @@ if __name__ == "__main__":
     test_data = appl_stock['low'].values[n:]
     plt.xlabel('hours elapsed')
     plt.ylabel('stock price index')
-    plt.plot(test_data[5:] * Y_pred, label='predicted share indices for AAPL')
-    plt.plot(test_data[5:] * Y_test, label='true share indices for AAPL')
+    plt.plot(test_data[3:] * Y_pred, label='predicted share indices for AAPL')
+    plt.plot(test_data[3:] * Y_test, label='true share indices for AAPL')
     plt.legend()
     plt.tight_layout()
     plt.show()
-    """
+    
     neg_res = 0
     total_neg_res = 0
     pos_res = 0
     total_pos_res = 0
-    Y_test[Y_test < 0] = 0
-    Y_test[Y_test > 0] = 1
+    Y_pred[Y_pred < 1] = 0
+    Y_pred[Y_pred > 1] = 1
+    Y_test[Y_test < 1] = 0
+    Y_test[Y_test > 1] = 1
     for i in range(len(Y_test)): 
         if Y_test[i] == 1:
             total_pos_res = total_pos_res + 1
@@ -449,6 +469,7 @@ if __name__ == "__main__":
     print(np.sum(Y_pred != Y_test)/len(Y_test))
     print("pos: {}".format(pos_res/total_pos_res))
     print("neg: {}".format(neg_res/total_neg_res))
+    """
     #plt.plot(Y_pred, Y_test, 'r+')
     #plt.show()
     #plt.xcorr(Y_pred, Y_test, normed=True, usevlines=True, maxlags = 30)
@@ -458,6 +479,6 @@ if __name__ == "__main__":
     print(r2_score(Y_pred, Y_test))
     print(r2_score(Y_test, Y_pred))
     corr = signal.correlate(Y_pred, Y_test)
-    corr = corr/np.lingalg.norm(corr)
+    corr = corr/np.linalg.norm(corr)
     plt.plot(corr)
     plt.show()
