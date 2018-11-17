@@ -1,10 +1,11 @@
 nn:
-        scrape_yahoo_finance: yes
+        scrape_yahoo_finance: no
         loss: mse
         epochs: 400
         validation_split: 0.00
-        learning_rate: 0.0025
-        pre_process: min_max
+        learning_rate: 0.0050
+        pre_process: z_score
+        transformation: log
         train_test_split: 0.90
         look_ahead_days: 1
         suppliers:
@@ -16,6 +17,9 @@ nn:
                 - TXN
                 - ADI
                 - GLUU
+                - MMM
+                - VSH
+                - QRVO
         features:
                 - bollinger_bands
                 - money_flow_index
@@ -41,19 +45,30 @@ nn:
                         activation: relu
                         dropout: 0.00
                         nuerons: 30
+                        kernel_regularizer: 0.000001
                 - layer_3:
                         type: feedforward
                         activation: relu
-                        dropout: 0.20
+                        dropout: 0.00
                         nuerons: 30
+                        kernel_regularizer: 0.0000000
                 - layer_4:
                         type: feedforward
                         activation: relu
                         dropout: 0.00
                         nuerons: 30
+                        kernel_regularizer: 0.0000000
+                - layer_2:
+                        type: feedforward
+                        activation: relu
+                        dropout: 0.00
+                        nuerons: 30
+                        kernel_regularizer: 0.000000
                 - layer_5:
                         type: feedforward
                         activation: linear
                         dropout: 0.00
                         nuerons: 1
+                        kernel_regularizer: 0
+
 
