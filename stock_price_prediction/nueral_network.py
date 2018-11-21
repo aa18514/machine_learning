@@ -10,19 +10,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from keras.layers import GRU
 from keras import regularizers
+from sklearn.base import BaseEstimator
 import time
 
-
-class nueral_network:
-    def __init__(x_train, y_train, x_test, y_test, nn):
+class nueral_network(BaseEstimator):
+    """requires some more work"""
+    def __init__(self, x_train, y_train, x_test, y_test, nn):
         self._x_train = x_train
         self._y_train = y_train
         self._x_test = x_test
         self._y_test = y_test
         self._nn = nn
+        self._model = None
 
-
-    def create_keras_model():
+    def create_keras_model(self):
         model = Sequential()
         for layer in self._nn['layers']:
             if layer == 'BatchNormalization':
@@ -34,7 +35,7 @@ class nueral_network:
                     model.add(Dropout(float(value['dropout'])))
                     if value['type'] == 'gru':
                         model.add(GRU(10, return_sequences=True))
-        if nn['optimizer'] == 'Adam':
+        if self._nn['optimizer'] == 'Adam':
             adam_optimizer = Adam(lr=self._nn['learning_rate'])
             model.compile(loss=self._nn['loss'], optimizer=self._nn['optimizer'], metrics=self._nn['metric'])
             return model
@@ -51,7 +52,17 @@ class nueral_network:
             plt.show()
 
 
-    def train_mlp_classifier():
+    def fit(self, x_train, y_train, verbose=1):
+        self._model = self.create_keras_model()
+        history = self._model.fit(x_train, y_train, validation_split=float(self._nn['validation_split']),\
+                epochs=int(self._nn['epochs']))
+        return self
+
+    def predict(self):
+        return self._model.predict_classes(self._x_test)
+
+
+    def train_mlp_classifier(self):
         model = self.create_keras_model()
         history = model.fit(self._x_train, self._y_train, validation_split=float(self._nn['validation_split']),\
                 epochs=int(self._nn['epochs']))
@@ -59,14 +70,14 @@ class nueral_network:
         return model.predict_classes(self._x_test), model.predict_classes(self._x_train)
 
 
-    def train_mlp_regressor():
+    def train_mlp_regressor(self):
         model = self.create_keras_model()
         history = model.fit(self._x_train, self._y_train, validation_split=float(self._nn['validation_split']),\
                 epochs=int(self._nn['epochs']))
         return model.predict(self._x_test), model.predict(self._x_train)
 
 
-    def rolling_mlp_regressor(ori):
+    def rolling_mlp_regressor(self, ori):
         model = self.create_keras_model()
         predictions = []
         errors = []
