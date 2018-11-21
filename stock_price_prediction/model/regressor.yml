@@ -20,6 +20,17 @@ nn:
                 - MMM
                 - VSH
                 - QRVO
+                - APH
+                - AVGO
+                - GLW
+                - INTC
+                - MXIM
+                - ON
+                - RRD
+                - BRK-A
+                - BRK-B
+                - SWKS
+                - CC
         features:
                 - bollinger_bands
                 - money_flow_index
@@ -29,9 +40,9 @@ nn:
                 - trix
                 - relative_strength_index
                 - moving_average:
-                        window_1: 10
-                        window_2: 5
-                        window_4: 40
+                        window_1: 7
+                        window_2: 14
+                        window_4: 21
                 - rolling_standard_deviation:
                         window_1: 7
                 - absolute_price_oscillator
@@ -44,25 +55,25 @@ nn:
                         type: feedforward
                         activation: relu
                         dropout: 0.00
-                        nuerons: 30
-                        kernel_regularizer: 0.000001
+                        nuerons: 35
+                        kernel_regularizer: 0.000000
                 - layer_3:
                         type: feedforward
                         activation: relu
                         dropout: 0.00
-                        nuerons: 30
+                        nuerons: 35
                         kernel_regularizer: 0.0000000
                 - layer_4:
                         type: feedforward
                         activation: relu
                         dropout: 0.00
-                        nuerons: 30
+                        nuerons: 35
                         kernel_regularizer: 0.0000000
                 - layer_2:
                         type: feedforward
                         activation: relu
                         dropout: 0.00
-                        nuerons: 30
+                        nuerons: 35
                         kernel_regularizer: 0.000000
                 - layer_5:
                         type: feedforward
