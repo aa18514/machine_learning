@@ -16,12 +16,16 @@ from sklearn.metrics import r2_score
 from scipy import signal
 sys.path.insert(0, '..')
 import machine_learning_utils
+from pre_processor import pre_processor
 from finance_transformer import optimizer
 from matplotlib.axes import Axes
-import train_model
 from data_acquisition import get_quote_data
 from typing import Dict
 import yaml
+from nueral_network import nueral_network
+from ransac import ransac
+from sklearn.pipeline import Pipeline
+
 
 DFS = list()
 INTRA_DAY_DATA = list()
@@ -104,7 +108,7 @@ def data_acquisition():
     return stock_data[1: ], sp_data[1: ]
 
 
-def load_model(model_file='model\\classifier.yml'):
+def load_model(model_file='model\\regressor.yml'):
     cfg = None
     with open(model_file, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
@@ -164,13 +168,18 @@ def plot_data(ylabel: str, Y_pred, Y_true, label):
     plt.show()
 
 
-def scrape_yahoo_intra_day_data(data_range='3000d', granularity='1d', write_data_to_pkl=True, filename='intra_day_data'):
+def scrape_yahoo_intra_day_data(cfg, data_range='3000d', granularity='1d', write_data_to_pkl=True, filename='intra_day_data'):
     companies_unavailable = 0.0
     data = get_quote_data('^GSPC', data_range, granularity)
     idx = data.index.unique()
     idx = pd.to_datetime(idx)
     INTRA_DAY_DATA = []
-    for company in HEADERS:
+    print(HEADERS)
+    company_quote = get_quote_data(HEADERS[1], data_range, granularity)
+    company_quote = company_quote.reindex(idx, method='pad')
+    company_quote = company_quote.fillna(method='pad')
+    INTRA_DAY_DATA.append(company_quote)
+    for company in cfg['suppliers']:
         company_quote = get_quote_data(company, data_range, granularity)
         if company_quote is not None:
             company_quote = company_quote.reindex(idx, method='pad')
@@ -180,9 +189,6 @@ def scrape_yahoo_intra_day_data(data_range='3000d', granularity='1d', write_data
             companies_unavailable = companies_unavailable + 1
             print("data for {} is unavailable".format(company))
     print("{} of companies are unavailable".format(100. * (companies_unavailable/len(HEADERS))))
-    companies = add_suppliers(INTRA_DAY_DATA)
-    for company in companies:
-        INTRA_DAY_DATA.append(company)
     if write_data_to_pkl is True:
         data_set = {
                 'hourly companies data' : INTRA_DAY_DATA,
@@ -216,13 +222,18 @@ def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'ST
 def pre_process_hourly_data(cfg: Dict, 
                             intra_day_data,
                             apple_stock,
-                            predict_direction=True)->(Dict):
+                            threshold=1,
+                            predict_direction=False)->(Dict):
     look_ahead_days = int(cfg['look_ahead_days'])
     apple_stock = apple_stock.fillna(0)
-    sp_data = (apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days])
+    sp_data = apple_stock.values[look_ahead_days:]/apple_stock.values[:-look_ahead_days]
+    if cfg['transformation'] == 'log':
+        sp_data = np.log(sp_data) #log with base e
+    else:
+        pass
     if predict_direction:
-        sp_data[sp_data <= 1] = 0
-        sp_data[sp_data > 1] = 1
+        sp_data[sp_data <= threshold] = 0
+        sp_data[sp_data > threshold] = 1
     finance_optimizer = optimizer(intra_day_data)
     for i in range(len(intra_day_data)):
         finance_optimizer.compute_high_low(i)
@@ -238,8 +249,7 @@ def pre_process_hourly_data(cfg: Dict,
                     finance_optimizer.average_directional_movement_index(i)
                 if keys == 'momentum':
                     finance_optimizer.momentum(i)
-                if keys == 'hodrick_prescott': 
-                    print('success')
+                if keys == 'hodrick_prescott':
                     finance_optimizer.calculate_hodrick_prescott(i)
                 if keys == 'trix':
                      finance_optimizer.compute_trix(i)
@@ -259,18 +269,15 @@ def pre_process_hourly_data(cfg: Dict,
     stocks = finance_optimizer.merge()
     sp_data = sp_data[3:]
     stocks = stocks[3:-look_ahead_days]
-    print(sp_data)
-    print(len(stocks.values))
     stocks = stocks.fillna(0)
     data_set = np.hstack([stocks.values, sp_data.reshape(len(stocks.values), 1)])
-    print(data_set)
     data_set = data_set[:, 1:]
+
     return data_set
 
 
 def calculate_company_betas(HEADERS, intra_day_data, aapl_stock, keys=['close', 'open', 'high', 'low']):
     coerr = []
-    assert(len(HEADERS) == len(intra_day_data))
     for i in range(len(HEADERS)):
         if HEADERS[i] == 'AAPL':
             pass
@@ -342,39 +349,32 @@ def feature_engineering(cfg: Dict, appl_stock, intra_day_data, HEADERS)->Dict:
         plt.plot(y_values[i])
         plt.tight_layout()
         plt.show()
-    coerr = calculate_company_betas(HEADERS, intra_day_data[:-8], appl_stock[1:])
-    pos_companies, c_top, h_top = get_top_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
-    neg_companies, c_bottom, h_bottom = get_bottom_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
-    print(h_top)
-    print(h_bottom)
+    #coerr = calculate_company_betas(HEADERS, intra_day_data[:-8], appl_stock[1:])
+    #pos_companies, c_top, h_top = get_top_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
+    #neg_companies, c_bottom, h_bottom = get_bottom_n_correlated_companies(coerr, HEADERS, intra_day_data[:-8])
+    #print(h_top)
+
+    #print(h_bottom)
     companies = []
-    for company in pos_companies:
-        companies.append(company)
-    for company in neg_companies:
-        companies.append(company)
-    companies.append(intra_day_data[1])
-    for i in range(1, 8, 1):
-        companies.append(intra_day_data[-1 * i])
-    print(len(companies))
+    #for company in pos_companies:
+    #    companies.append(company)
+    #for company in neg_companies:
+    #    companies.append(company)
+    #companies.append(intra_day_data[0])
+    #for i in range(1, 20, 1):
+    #    companies.append(intra_day_data[-1 * i])
+    #print(len(companies))
+    companies = intra_day_data
     data_set = pre_process_hourly_data(cfg, companies, appl_stock['close'])
     print(data_set)
     return data_set
-
-
-def pre_process_data(cfg: Dict, X_train, X_test)->Dict:
-    """apply preprocessing to data based on the parameter in the config file"""
-    if cfg['pre_process'] == 'z_score':
-        X_train, X_test = machine_learning_utils.z_score(X_train, X_test)
-    elif cfg['pre_process'] == 'min_max':
-        X_train, X_test = machine_learning_utils.min_max(X_train, X_test)
-    return X_train, X_test
 
 
 def load_data(cfg: Dict)->Dict:
     intra_day_data = None
     data = None
     if cfg['scrape_yahoo_finance'] == True:
-        intra_day_data, data = scrape_yahoo_intra_day_data()
+        intra_day_data, data = scrape_yahoo_intra_day_data(cfg)
     else:
         intra_day_data, data = load_intra_day_data()
     return intra_day_data, data
@@ -386,31 +386,35 @@ if __name__ == "__main__":
     data_acquisition()
     HEADERS = np.array(HEADERS)
     intra_day_data, data = load_data(cfg)
+   
     print("this is len of intra day data: {}".format(len(intra_day_data)))
-    #intra_day_data = add_suppliers(intra_day_data)
-    appl_stock = intra_day_data[1].fillna(0)
+    appl_stock = intra_day_data[0].fillna(0)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
     machine_learning_utils.histogram_residuals((appl_stock['open'].values[1:]/appl_stock['open'].values[:-1]), ax1)
     plt.show()
     data_set = feature_engineering(cfg, appl_stock, intra_day_data, HEADERS)
     print(train_test_split)
     (X_train, Y_train), (X_test, Y_test) = create_train_test_patches(data_set, 1, train_test_split)
-    print(X_train)
-    print(X_test)
-    X_train, X_test = pre_process_data(cfg, X_train, X_test)
     n = int(np.floor(train_test_split * (data_set.shape[0])))
     test_data = appl_stock['close'].values[n:]
     test_data = test_data[3:]
-    Y_pred, Y_train_pred = train_model.train_mlp_classifier(X_train, Y_train, X_test)
+    pipeline = Pipeline([
+        ('pre_processor', pre_processor('z_score')),
+        ('model', nueral_network()),
+        ])
+    Y_pred = pipeline.fit(X_train, Y_train).predict(X_test)
     Y_pred = (Y_pred.flatten())
     Y_train_pred = (Y_train_pred.flatten())
-    visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
+    #visualize_classification(Y_pred, Y_train, Y_train_pred, Y_test)
     #print(np.sqrt(np.mean((Y_train_pred - Y_train)**2)))
     #print(np.sqrt(np.mean((Y_pred - Y_test)**2)))
     #print(np.mean(np.abs(100*(Y_pred - Y_test)/Y_test)))
     #plt.plot(Y_train_pred, label='predicted AAPL values in past')
     #plt.plot(Y_train, label='true AAPL values in past')
-    """
+    Y_train_pred = np.exp(Y_train_pred)
+    Y_train = np.exp(Y_train)
+    Y_pred = np.exp(Y_pred)
+    Y_test = np.exp(Y_test)
     Y_pred = np.append(Y_train_pred[-1], Y_pred)
     Y_test = np.append(Y_train[-1], Y_test)
     titles = ['Train Data', 'Test Data']
@@ -482,3 +486,4 @@ if __name__ == "__main__":
     corr = corr/np.linalg.norm(corr)
     plt.plot(corr)
     plt.show()
+    """
