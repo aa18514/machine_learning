@@ -15,11 +15,7 @@ import time
 
 class nueral_network(BaseEstimator):
     """requires some more work"""
-    def __init__(self, x_train, y_train, x_test, y_test, nn):
-        self._x_train = x_train
-        self._y_train = y_train
-        self._x_test = x_test
-        self._y_test = y_test
+    def __init__(self, nn):
         self._nn = nn
         self._model = None
 
@@ -58,8 +54,8 @@ class nueral_network(BaseEstimator):
                 epochs=int(self._nn['epochs']))
         return self
 
-    def predict(self):
-        return self._model.predict_classes(self._x_test)
+    def predict(self, x_test):
+        return self._model.predict_classes(x_test)
 
 
     def train_mlp_classifier(self):
