@@ -218,7 +218,7 @@ def add_suppliers(intra_day_data, us_suppliers=['JBL', 'MU', 'QCOM', 'DIOD', 'ST
         suppliers.append(company_quote)
     return suppliers
 
-
+ 
 def pre_process_hourly_data(cfg: Dict, 
                             intra_day_data,
                             apple_stock,
@@ -235,28 +235,22 @@ def pre_process_hourly_data(cfg: Dict,
         sp_data[sp_data <= threshold] = 0
         sp_data[sp_data > threshold] = 1
     finance_optimizer = optimizer(intra_day_data)
+    transformation_dict = {
+        'bollinger_bands' : finance_optimizer.compute_bb(i)
+        'money_flow_index' : finance_optimizer.money_flow_index(i)
+        'average_directional_index' : finance_optimizer.average_directional_movement_index(i)
+        'momentum' : finance_optimizer.momentum(i)
+        'hodrick_prescott' : finance_optimizer.calculate_hodrick_prescott(i),
+        'trix' : finance_optimizer.trix(i)
+        'relative_strength_index' : finance_optimizer.compute_rsi(i),
+        'absolute_price_oscillator' : finance_optimizer.compute_absolute_price_oscillator(i)
+    }
     for i in range(len(intra_day_data)):
         finance_optimizer.compute_high_low(i)
         finance_optimizer.compute_open_close(i)
         for keys in cfg['features']:
             if isinstance(keys, str):
-                print(keys == 'hodrick_prescott')
-                if keys == 'bollinger_bands':
-                    finance_optimizer.compute_bb(i)
-                if keys == 'money_flow_index':
-                    finance_optimizer.calculate_money_flow_index(i)
-                if keys == 'average_directional_movement_index':
-                    finance_optimizer.average_directional_movement_index(i)
-                if keys == 'momentum':
-                    finance_optimizer.momentum(i)
-                if keys == 'hodrick_prescott':
-                    finance_optimizer.calculate_hodrick_prescott(i)
-                if keys == 'trix':
-                     finance_optimizer.compute_trix(i)
-                if keys == 'relative_strength_index':
-                    finance_optimizer.compute_rsi(i)
-                if keys == 'absolute_price_oscillator':
-                    finance_optimizer.compute_absolute_price_oscillator(i)
+                transformation_dict[keys]
             elif type(keys) is dict:
                 for key, value in keys.items():
                     if key == 'rolling_standard_deviation':
@@ -272,7 +266,6 @@ def pre_process_hourly_data(cfg: Dict,
     stocks = stocks.fillna(0)
     data_set = np.hstack([stocks.values, sp_data.reshape(len(stocks.values), 1)])
     data_set = data_set[:, 1:]
-
     return data_set
 
 
