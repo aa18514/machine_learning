@@ -44,7 +44,7 @@ class optimizer:
                                 self.compute_rolling_std(i, int(window_size))
                         elif key == 'moving_average':
                             for _, window_size in value.items():
-                                self.compute_moving_average(i, int(window_size))
+                                self.calculate_moving_average(i, int(window_size))
     
     def compute_williams_r(self, company_index, pad_value=0, period=14):
         c = 0
