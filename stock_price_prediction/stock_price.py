@@ -236,21 +236,21 @@ def pre_process_hourly_data(cfg: Dict,
         sp_data[sp_data > threshold] = 1
     finance_optimizer = optimizer(intra_day_data)
     transformation_dict = {
-        'bollinger_bands' : finance_optimizer.compute_bb(i)
-        'money_flow_index' : finance_optimizer.money_flow_index(i)
-        'average_directional_index' : finance_optimizer.average_directional_movement_index(i)
-        'momentum' : finance_optimizer.momentum(i)
-        'hodrick_prescott' : finance_optimizer.calculate_hodrick_prescott(i),
-        'trix' : finance_optimizer.trix(i)
-        'relative_strength_index' : finance_optimizer.compute_rsi(i),
-        'absolute_price_oscillator' : finance_optimizer.compute_absolute_price_oscillator(i)
+        'bollinger_bands' : finance_optimizer.compute_bb,
+        'money_flow_index' : finance_optimizer.calculate_money_flow_index,
+        'average_directional_movement_index' : finance_optimizer.average_directional_movement_index,
+        'momentum' : finance_optimizer.momentum,
+        'hodrick_prescott' : finance_optimizer.calculate_hodrick_prescott,
+        'trix' : finance_optimizer.compute_trix,
+        'relative_strength_index' : finance_optimizer.compute_rsi,
+        'absolute_price_oscillator' : finance_optimizer.compute_absolute_price_oscillator
     }
     for i in range(len(intra_day_data)):
         finance_optimizer.compute_high_low(i)
         finance_optimizer.compute_open_close(i)
         for keys in cfg['features']:
             if isinstance(keys, str):
-                transformation_dict[keys]
+                transformation_dict[keys](i)
             elif type(keys) is dict:
                 for key, value in keys.items():
                     if key == 'rolling_standard_deviation':
@@ -393,7 +393,7 @@ if __name__ == "__main__":
     test_data = test_data[3:]
     pipeline = Pipeline([
         ('pre_processor', pre_processor('z_score')),
-        ('model', nueral_network()),
+        ('model', nueral_network(cfg)),
         ])
     Y_pred = pipeline.fit(X_train, Y_train).predict(X_test)
     Y_pred = (Y_pred.flatten())
