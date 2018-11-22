@@ -13,12 +13,38 @@ class optimizer:
     def __init__(self, stock_data, keys=['williams_r', 'rsi', 'mom', 'trix']):
         """@stock_data: list of dataframes for S&P 500 Companies - this could be either intra-day, 
         daily, weekly or monthly data"""
+        self._transformation_dict = {
+                'bollinger_bands' : self.compute_bb,
+                'money_flow_index' : self.calculate_money_flow_index,
+                'average_directional_movement_index' : self.average_directional_movement_index,
+                'momentum' : self.momentum,
+                'hodrick_prescott' : self.calculate_hodrick_prescott,
+                'trix' : self.compute_trix,
+                'relative_strength_index' : self.compute_rsi,
+                'absolute_price_oscillator' : self.compute_absolute_price_oscillator
+        }
         self._stock_data = stock_data
         for i in range(len(self._stock_data)):
             for key in keys:
                 self._stock_data[i][key] = \
                         Series(np.random.randn(len(self._stock_data[i]['open'].values)), index=self._stock_data[i].index)
 
+
+    def _run_optimizer(self, cfg):
+        for i in range(len(self._stock_data)):
+            self.compute_high_low(i)
+            self.compute_open_close(i)
+            for keys in cfg['features']:
+                if isinstance(keys, str):
+                    self._transformation_dict[keys](i)
+                elif type(keys) is dict:
+                    for key, value in keys.items():
+                        if key == 'rolling_standard_deviation':
+                            for _, window_size in value.items():
+                                self.compute_rolling_std(i, int(window_size))
+                        elif key == 'moving_average':
+                            for _, window_size in value.items():
+                                self.compute_moving_average(i, int(window_size))
     
     def compute_williams_r(self, company_index, pad_value=0, period=14):
         c = 0
@@ -83,7 +109,7 @@ class optimizer:
         self._stock_data[company_index][str(period) + '-val'] = moving_average
 
 
-    def compute_absolute_price_oscillator(self, company_index, slow='40-val', fast='5-val'):
+    def compute_absolute_price_oscillator(self, company_index, slow='21-val', fast='7-val'):
         company = self._stock_data[company_index]
         self._stock_data[company_index]['delta'] = np.array(company[fast].values) - np.array(company[slow].values)
         #self._stock_data[company_index]['volume'] = self._stock_data[company_index]['volume'] * self._stock_data[company_index]['close']
