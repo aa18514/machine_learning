@@ -10,11 +10,11 @@ class pre_processor:
         if self._string_pre_processor == 'z_score':
             self._transformer = preprocessing.StandardScaler()
             self._train_data = self._transformer.fit(x_train).\
-                    transform(self._train_data)
+                    transform(x_train)
         else:
             self._transformer = preprocessing.MinMaxScaler()
             self._train_data = self._transformer.fit(x_train).\
-                    transform(self._train_data)
+                    transform(x_train)
         return self
 
 
