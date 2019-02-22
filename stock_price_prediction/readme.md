@@ -54,7 +54,9 @@ In addition to past historical data of Apple, historical data of other companies
 After all of the features are engineered, the data is stored in pickle format, which allows other machine learning practictioners to train and test their models on feature engineered data-set <br>
 
 ## Predicting returns
-* Keras Regressor was used to predict at the returns at timestep t + p, i.e the 'p'-th timestep into the future (where timestep can be either hour or day). The following diagram shows the true versus predicted geometric returns for test data.
+* Keras Regressor was used to predict at the returns at timestep t + p, i.e the 'p'-th timestep into the future (where timestep can be either hour or day). <br>
+
+The following diagram shows the true versus predicted geometric returns for test data.
 
 <p align="center">
     <img src="https://github.com/aa18514/machine_learning/blob/master/stock_price_prediction/images/predicted_returns.png", width="400" height="400" />
